@@ -1,0 +1,36 @@
+#**********************************************************
+#
+# File: Makefile
+# Created: 2022-02-12
+# Last change: 2022-02-19
+# Author: David Chocholaty <xchoch09@stud.fit.vutbr.cz>
+# Project: Project 2 for course IPK
+# Description: Makefile for packet sniffer
+#
+#**********************************************************
+
+CC = gcc
+CFLAGS = -std=gnu99 -Wall -Wextra -Werror -pedantic
+EXECUTABLE = ipk-sniffer
+OBJS = $(EXECUTABLE).o
+LOGIN = xchoch09
+TAR_FILE = $(LOGIN).tar
+TAR_OPTIONS = -cvf
+
+.PHONY: all pack run clean
+
+all: $(EXECUTABLE)
+
+pack: $(TAR_FILE)
+
+run: $(EXECUTABLE)
+	./$(EXECUTABLE) $(ARGS)
+
+$(EXECUTABLE): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+
+clean:
+	rm -f $(EXECUTABLE) *.o $(TAR_FILE)
+
+$(TAR_FILE): *.c *.h Makefile README.md
+	tar $(TAR_OPTIONS) $@ $^ .
