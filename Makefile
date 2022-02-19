@@ -11,8 +11,11 @@
 
 CC = gcc
 CFLAGS = -std=gnu99 -Wall -Wextra -Werror -pedantic -g
+LDFLAGS = -lpcap
 EXECUTABLE = ipk-sniffer
-OBJS = $(EXECUTABLE).o
+ERR = error
+OPT = option
+OBJS = $(EXECUTABLE).o $(ERR).o $(OPT).o
 LOGIN = xchoch09
 TAR_FILE = $(LOGIN).tar
 TAR_OPTIONS = -cvf
@@ -27,7 +30,7 @@ run: $(EXECUTABLE)
 	./$(EXECUTABLE) $(ARGS)
 
 $(EXECUTABLE): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:
 	rm -f $(EXECUTABLE) *.o $(TAR_FILE)

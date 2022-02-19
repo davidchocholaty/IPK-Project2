@@ -1,20 +1,27 @@
 /**********************************************************/
 /*                                                        */
-/* File: ipk-sniffer.h                                    */
-/* Created: 2022-02-12                                    */
+/* File: error.h                                          */
+/* Created: 2022-02-19                                    */
 /* Last change: 2022-02-19                                */
 /* Author: David Chocholaty <xchoch09@stud.fit.vutbr.cz>  */
 /* Project: Project 2 for course IPK                      */
-/* Description: Header file for packet sniffer            */
+/* Description: Header file for errors                    */
 /*                                                        */
 /**********************************************************/
 
-#ifndef IPK_SNIFFER_H
-#define IPK_SNIFFER_H
+#ifndef IPK_SNIFFER_ERROR_H
+#define IPK_SNIFFER_ERROR_H
 
-#include <pcap.h>
+#include <stdio.h>
+#include <stdint.h>
 
-#include "error.h"
-#include "option.h"
+enum error
+{
+    NO_ERROR,
+    OPT_ERROR,
+    UNKNOWN_ERROR
+};
 
-#endif // IPK_SNIFFER_H
+void print_error(uint8_t error);
+
+#endif // IPK_SNIFFER_ERROR_H
