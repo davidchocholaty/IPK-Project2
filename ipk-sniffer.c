@@ -18,6 +18,8 @@
 #include <limits.h>
 #include <stdint.h>
 
+#include <pcap.h> 
+
 #define SET true
 #define UNSET false
 
