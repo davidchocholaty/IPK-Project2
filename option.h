@@ -24,6 +24,36 @@
 #define UNSET false
 
 #define INIT_OPT(opt)                        \
+        struct interface interface_default = \
+        {                                    \
+            .interface_set = UNSET,          \
+            .interface_val = NULL            \
+        };                                   \
+                                             \
+        struct port port_default =           \
+        {                                    \
+            .port_set = UNSET,               \
+            .port_val = 0                    \
+        };                                   \
+                                             \
+        struct num num_default =             \
+        {                                    \
+            .num_set = UNSET,                \
+            .num_val = 0L                    \
+        };                                   \
+                                             \
+        struct option option_default =       \
+        {                                    \
+            .interface = NULL,               \
+            .port      = NULL,               \
+            .num       = NULL,               \
+            .tcp_set   = UNSET,              \
+            .udp_set   = UNSET,              \
+            .arp_set   = UNSET,              \
+            .icmp_set  = UNSET,              \
+            .help_set  = UNSET               \
+        };                                   \
+                                             \
         opt            = &option_default;    \
         opt->interface = &interface_default; \
         opt->port      = &port_default;      \
@@ -38,31 +68,19 @@ struct interface
 {
     bool interface_set;
     char *interface_val;
-} interface_default =
-    {
-        .interface_set = UNSET,
-        .interface_val = NULL
-    };
+};
 
 struct port
 {
     bool port_set;
     unsigned short port_val;
-} port_default =
-    {
-        .port_set = UNSET,
-        .port_val = 0
-    };
+};
 
 struct num
 {
     bool num_set;
     unsigned long num_val;
-} num_default =
-    {
-        .num_set = UNSET,
-        .num_val = 0L
-    };
+};
 
 struct option
 {    
@@ -74,17 +92,7 @@ struct option
     bool arp_set;
     bool icmp_set;
     bool help_set;
-} option_default =
-    {
-        .interface = NULL,
-        .port      = NULL,
-        .num       = NULL,
-        .tcp_set   = UNSET,
-        .udp_set   = UNSET,
-        .arp_set   = UNSET,
-        .icmp_set  = UNSET,
-        .help_set  = UNSET
-    };
+};
 
 void print_help (char *prog_name);
 int parse_args (int argc, char *argv[], option_t opt);

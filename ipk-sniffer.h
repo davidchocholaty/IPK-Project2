@@ -13,8 +13,14 @@
 #define IPK_SNIFFER_H
 
 #include <pcap.h>
+#include <signal.h>
 
 #include "error.h"
 #include "option.h"
+
+#define DLT_NULL_LEN       4
+#define DLT_EN10MB_LEN    14
+#define DLT_LINUX_SLL_LEN 16
+#define DLT_SLIP_PPP_LEN  24
 
 #endif // IPK_SNIFFER_H

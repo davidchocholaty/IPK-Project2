@@ -139,6 +139,10 @@ int parse_short_opt (int argc,
                     return EXIT_FAILURE;
                 }
             }
+            else
+            {
+                return EXIT_FAILURE;
+            }
 
             break;
 
@@ -162,6 +166,10 @@ int parse_short_opt (int argc,
                     return EXIT_FAILURE;
                 }
             }
+            else
+            {
+                return EXIT_FAILURE;
+            }
 
             break;
 
@@ -170,25 +178,13 @@ int parse_short_opt (int argc,
             break;
 
         case ':':
-            switch (optopt)
+            if (optopt == 'i')
             {
-            case 'i':
-                opt->interface->interface_set = SET;                
-                break;
-            
-            case 'p':
-                opt->port->port_set = SET;
-                break;
-
-            case 'n':
-                opt->num->num_set = SET;
-                break;
-
-            default:
+                opt->interface->interface_set = SET;
                 break;
             }
-
-            break;
+            
+            return EXIT_FAILURE;
 
         case '?':
             return EXIT_FAILURE;
