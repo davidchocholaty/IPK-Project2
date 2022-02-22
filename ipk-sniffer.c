@@ -143,18 +143,149 @@ void get_link_header_len(pcap_t* handle)
         link_header_len = 0;
     }
 }
-
-void handle_ipv4_packet (const u_char *packet_ptr)
+/*
+void print_hex (u_char *packet_data, int start, int end)
 {
+    printf(" ");
+
+    for (int i = start; i < end; i++)
+    {
+        printf("%02x ", packet_data[i]);
+    }
+    
+    int rest = end - start;
+
+    if (rest < 16)
+    {
+        for (int i = 0; i < 16; i++)
+        {
+            printf("   ");
+        }        
+    }
+
+    printf(" ");
+}
+
+void print_ascii (u_char *packet_data, int start, int end)
+{
+    for (int i = start; i < end; i++)
+    {
+        if (isprint(packet_data[i]))
+        {
+            printf("%c", packet_data[i]);
+        }
+        else
+        {
+            print(".");
+        }
+    }
+}
+
+void print_data (u_char *packet_data, int packet_size)
+{
+    if (packet_size == 0)
+    {
+        // TODO
+    }
+    
+    int i = 0;
+
+    const int S = 16;
+
+    for (i = 0; i <= packet_size - S; i+=S)
+    {
+        printf("0x%04x ", i);
+        print_hex(packet_data, i, S + i);
+        print_ascii(packet_data, i, S + i);
+        printf("\n");
+    }
+}
+*/
+
+/* https://www.binarytides.com/packet-sniffer-code-c-libpcap-linux-sockets/ */
+void print_data (const u_char *packet_data, int size)
+{
+    int i, j;
+
+    for (i = 0; i < size; i++)
+    {
+        //if one line of hex printing is complete...
+        if ((i != 0) && (i % 16 == 0))
+        {
+            printf("         ");
+
+            for (j = i - 16; j < i; j++)
+            {
+                if (isprint(packet_data[j]))
+                {
+                    printf("%c", (unsigned char) packet_data[i]);
+                }
+                else
+                {
+                    printf(".");
+                }                
+            }
+            printf("\n");
+        }
+        
+        if (i % 16 == 0) printf("   ");
+            printf(" %02X", (unsigned char)packet_data[i]);
+
+        if (i == size - 1) // print the last spaces
+        {
+            for (j = 0; j < 15 - i%16; j++)
+            {
+                printf("   "); //extra spaces
+            }
+            
+            printf("         ");
+
+            for (j = i - i%16; j <= i; j++)
+            {
+                if (isprint(packet_data[j]))
+                {
+                    printf("%c", (unsigned char) packet_data[j]);
+                }
+                else
+                {
+                    printf(".");
+                }                           
+            }
+            printf("\n" );
+        }
+    }
+}
+
+void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *packet_header)
+{
+    /*
+        TCP
+        ---------
+
+        size_ip = 4 * ip_header->ip_hl
+        size_tcp = 4 * tcp_header->doff
+
+        (link_header_length + size_ip + size_tcp)
+
+        UDP
+        ---------
+
+        size_ip = 4 * ip_header->ip_hl
+        SIZE_UDP = 8
+        (link_header_length + size_ip + SIZE_UDP)
+    */
     struct ip *ip_header;    
     struct tcphdr* tcp_header;
     struct udphdr* udp_header;
     struct icmp* icmp_header;
-    struct arphdr* arp_header;
+    struct arphdr* arp_header;    
     
     //TODO velikost
     char src_ip[256];
     char dst_ip[256];
+
+    u_int ip_size;
+    u_int tcp_size;
 
     /* Skip the datalink layer header and get the IP header fields */
     packet_ptr += link_header_len;
@@ -162,8 +293,9 @@ void handle_ipv4_packet (const u_char *packet_ptr)
     strcpy(src_ip, inet_ntoa(ip_header->ip_src));
     strcpy(dst_ip, inet_ntoa(ip_header->ip_dst));
 
-    /* Advance to the transport layer header */ 
-    packet_ptr += 4*ip_header->ip_hl;
+    /* Advance to the transport layer header */
+    ip_size = 4*ip_header->ip_hl;
+    packet_ptr += ip_size;
 
     /* Parse and display the fields based on the type of hearder: tcp, udp, icmp or arp */
     switch (ip_header->ip_p)
@@ -171,14 +303,23 @@ void handle_ipv4_packet (const u_char *packet_ptr)
     /* TCP    */
     case IPPROTO_TCP:
         tcp_header = (struct tcphdr*)packet_ptr;
+        tcp_size = 4 * tcp_header->doff;
+
+        //(link_header_length + ip_size + tcp_size)
+
+
         //TODO print
-        /* TODO smazat */
-        tcp_header = tcp_header;
+        /* TODO smazat */        
+        packet_header = packet_header;
+
         break;
     
     /* UDP    */
     case IPPROTO_UDP:
         udp_header = (struct udphdr*)packet_ptr;
+    
+        //(link_header_length + ip_size + UDP_SIZE)
+
         //TODO print
         /* TODO smazat */
         udp_header = udp_header;
@@ -202,7 +343,7 @@ void handle_ipv4_packet (const u_char *packet_ptr)
     }
 }
 
-void handle_ipv6_packet (const u_char *packet_ptr)
+void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *packet_header)
 {
     struct ip6_hdr *ipv6_header;
     struct tcphdr* tcp_header;
@@ -222,6 +363,10 @@ void handle_ipv6_packet (const u_char *packet_ptr)
     inet_ntop(AF_INET6, &(ipv6_header->ip6_dst), ipv6_dst_ip, INET6_ADDRSTRLEN);
 
     int next_header = ipv6_header->ip6_nxt;
+
+    /*
+    TODO jestli jeste nejake to pricitani 40
+    */
 
     /* Determining if the packet has an extended header  */
     switch (next_header)
@@ -266,6 +411,8 @@ void handle_ipv6_packet (const u_char *packet_ptr)
         //TODO print
         /* TODO smazat */
         tcp_header = tcp_header;
+        packet_header = packet_header;
+
         break;
 
     /* UDP                 */
@@ -290,9 +437,7 @@ void handle_ipv6_packet (const u_char *packet_ptr)
 }
 
 void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const u_char *packet_ptr)
-{
-    bool ip_flag = IPv4;
-
+{    
     /***************************************************************************/
 
     /*
@@ -321,7 +466,11 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const
     /* Otherwise it packet type IPv4 -> default value of ip_flag */
     if (packet_type == IPv6_PACKET_TYPE)
     {
-        ip_flag = IPv6;
+        handle_ipv6_packet(packet_ptr, packet_header);
+    }
+    else
+    {
+        handle_ipv4_packet(packet_ptr, packet_header);
     }
 
     // TODO time
@@ -332,87 +481,6 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const
      */
     user = user;
     packet_header = packet_header;
-    ip_flag = ip_flag;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-    struct ip* iphdr;
-    struct icmp* icmphdr;
-    struct tcphdr* tcphdr;
-    struct udphdr* udphdr;
-    char iphdrInfo[256];
-    char srcip[256];
-    char dstip[256];
- 
-     // Skip the datalink layer header and get the IP header fields.
-    packet_ptr += link_header_len;
-    iphdr = (struct ip*)packet_ptr;
-    strcpy(srcip, inet_ntoa(iphdr->ip_src));
-    strcpy(dstip, inet_ntoa(iphdr->ip_dst));
-    sprintf(iphdrInfo, "ID:%d TOS:0x%x, TTL:%d IpLen:%d DgLen:%d",
-            ntohs(iphdr->ip_id), iphdr->ip_tos, iphdr->ip_ttl,
-            4*iphdr->ip_hl, ntohs(iphdr->ip_len));
- 
-    // Advance to the transport layer header then parse and display
-    // the fields based on the type of hearder: tcp, udp or icmp.
-    packet_ptr += 4*iphdr->ip_hl;
-
-    switch (iphdr->ip_p)
-    {
-    case IPPROTO_TCP:
-        tcphdr = (struct tcphdr*)packet_ptr;
-        printf("TCP  %s:%d -> %s:%d\n", srcip, ntohs(tcphdr->th_sport),
-               dstip, ntohs(tcphdr->th_dport));
-        printf("%s\n", iphdrInfo);
-        printf("%c%c%c%c%c%c Seq: 0x%x Ack: 0x%x Win: 0x%x TcpLen: %d\n",
-               (tcphdr->th_flags & TH_URG ? 'U' : '*'),
-               (tcphdr->th_flags & TH_ACK ? 'A' : '*'),
-               (tcphdr->th_flags & TH_PUSH ? 'P' : '*'),
-               (tcphdr->th_flags & TH_RST ? 'R' : '*'),
-               (tcphdr->th_flags & TH_SYN ? 'S' : '*'),
-               (tcphdr->th_flags & TH_SYN ? 'F' : '*'),
-               ntohl(tcphdr->th_seq), ntohl(tcphdr->th_ack),
-               ntohs(tcphdr->th_win), 4*tcphdr->th_off);
-        printf("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n\n");
-        packets += 1;
-        break;
- 
-    case IPPROTO_UDP:
-        udphdr = (struct udphdr*)packet_ptr;
-        printf("UDP  %s:%d -> %s:%d\n", srcip, ntohs(udphdr->uh_sport),
-               dstip, ntohs(udphdr->uh_dport));
-        printf("%s\n", iphdrInfo);
-        printf("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n\n");
-        packets += 1;
-        break;
- 
-    case IPPROTO_ICMP:
-        icmphdr = (struct icmp*)packet_ptr;
-        printf("ICMP %s -> %s\n", srcip, dstip);
-        printf("%s\n", iphdrInfo);
-        printf("Type:%d Code:%d ID:%d Seq:%d\n", icmphdr->icmp_type, icmphdr->icmp_code,
-               ntohs(icmphdr->icmp_hun.ih_idseq.icd_id), ntohs(icmphdr->icmp_hun.ih_idseq.icd_seq));
-        printf("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n\n");
-        packets += 1;
-        break;
-    }
-    */
 }
 
 void stop_capture()

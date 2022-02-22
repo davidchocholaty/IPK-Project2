@@ -43,6 +43,8 @@
 #define PORT_FILTER_MAX_LEN 12
 #define FILTER_MAX_LEN 70
 
+#define UDP_SIZE 8
+
 #define IPv6_PACKET_TYPE 34525
 
 #define ADD_TCP_FILTER(opt, filter, port_filter, port_is_set)      \
