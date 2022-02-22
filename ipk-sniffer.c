@@ -13,6 +13,7 @@
  * Links:
  * https://vichargrave.github.io/programming/develop-a-packet-sniffer-with-libpcap/
  * https://github.com/yuan901202/vuw_nwen302_ethernet_packet_sniffer/blob/master/eps.c
+ * https://www.binarytides.com/packet-sniffer-code-c-libpcap-linux-sockets/
  */
 
 #include "ipk-sniffer.h"
@@ -29,7 +30,7 @@ bool valid_interface (option_t opt)
 
     if (is_set && val != NULL)
     {
-        is_valid = true
+        is_valid = true;
     }
     
     return is_valid;
@@ -39,37 +40,38 @@ void create_filter (option_t opt, char *filter)
 {
     // tcp port <port> or udp port <port> or icmp port <port> or arp port <port>
     bool port_is_set = opt->port->port_set;
+    char port_filter[PORT_FILTER_LEN];
 
     strcpy(filter, "");
 
     /* TCP  */
     if (opt->tcp_set)
     {
-        ADD_TCP_FILTER(opt, filter, port_is_set);                
+        ADD_TCP_FILTER(opt, filter, port_filter, port_is_set);                
     }
     
     /* UDP  */
     if (opt->udp_set)
     {
-        ADD_UDP_FILTER(opt, filter, port_is_set);
+        ADD_UDP_FILTER(opt, filter, port_filter, port_is_set);
     }
 
     /* ICMP */
     if (opt->icmp_set)
     {
-        ADD_ICMP_FILTER(opt, filter, port_is_set);
+        ADD_ICMP_FILTER(opt, filter, port_filter, port_is_set);
     }
 
     /* ARP  */
     if (opt->tcp_set)
     {
-        ADD_ARP_FILTER(opt, filter, port_is_set);
+        ADD_ARP_FILTER(opt, filter, port_filter, port_is_set);
     }    
 }
 
 pcap_t *create_pcap_handle (char *device, char *filter)
 {
-    char err_buf[PCAP_err_buf_SIZE];
+    char err_buf[PCAP_ERRBUF_SIZE];
     pcap_t *handle = NULL;
     struct bpf_program bpf;
     bpf_u_int32 netmask;
@@ -149,6 +151,7 @@ void handle_ipv4_packet (const u_char *packet_ptr)
     struct udphdr* udp_header;
     struct icmp* icmp_header;
     struct arphdr* arp_header;
+    
     //TODO velikost
     char src_ip[256];
     char dst_ip[256];
@@ -156,11 +159,11 @@ void handle_ipv4_packet (const u_char *packet_ptr)
     /* Skip the datalink layer header and get the IP header fields */
     packet_ptr += link_header_len;
     ip_header = (struct ip*)packet_ptr;
-    strcpy(src_ip, inet_toa(ip_header->ip_src));
-    strcpy(dst_ip, inet_toa(ip_header->ip_dst));
+    strcpy(src_ip, inet_ntoa(ip_header->ip_src));
+    strcpy(dst_ip, inet_ntoa(ip_header->ip_dst));
 
     /* Advance to the transport layer header */ 
-    packet_ptr += 4*iphdr->ip_hl;
+    packet_ptr += 4*ip_header->ip_hl;
 
     /* Parse and display the fields based on the type of hearder: tcp, udp, icmp or arp */
     switch (ip_header->ip_p)
@@ -169,27 +172,32 @@ void handle_ipv4_packet (const u_char *packet_ptr)
     case IPPROTO_TCP:
         tcp_header = (struct tcphdr*)packet_ptr;
         //TODO print
+        /* TODO smazat */
+        tcp_header = tcp_header;
         break;
     
     /* UDP    */
     case IPPROTO_UDP:
         udp_header = (struct udphdr*)packet_ptr;
         //TODO print
+        /* TODO smazat */
+        udp_header = udp_header;
         break;
 
     /* ICMPv4 */
     case IPPROTO_ICMP:
         icmp_header = (struct icmp*)packet_ptr;
         //TODO print
+        /* TODO smazat */
+        icmp_header = icmp_header;
         break;
 
-    /* ARP    */
-    case IPPROTO_ARP:
+    /* ARP    */    
+    default:
         arp_header = (struct arphdr*)packet_ptr;
         //TODO print
-        break;
-
-    default:
+        /* TODO smazat */
+        arp_header = arp_header;
         break;
     }
 }
@@ -200,7 +208,7 @@ void handle_ipv6_packet (const u_char *packet_ptr)
     struct tcphdr* tcp_header;
     struct udphdr* udp_header;
     struct icmp* icmp_header;
-    struct arphdr* arp_header;
+    
     //TODO velikost
     char ipv6_src_ip[256];
     char ipv6_dst_ip[256];
@@ -219,28 +227,28 @@ void handle_ipv6_packet (const u_char *packet_ptr)
     switch (next_header)
     {
     /* Routing             */
-    case IPPROTO_ROUTING:
+    case IPPROTO_ROUTING:;
         struct ip6_rthdr *header_r = (struct ip6_rthdr*)packet_ptr;
         packet_ptr += sizeof(struct ip6_rthdr);
         next_header = header_r->ip6r_nxt;
         break;
     
     /* Hop by hop          */
-    case IPPROTO_HOPOPTS:
+    case IPPROTO_HOPOPTS:;
         struct ip6_hbh *header_h = (struct ip6_hbh*)packet_ptr;
         packet_ptr += sizeof(struct ip6_hbh);
         next_header = header_h->ip6h_nxt;
         break;
 
     /* Fragmentation       */
-    case IPPROTO_FRAGMENT:
+    case IPPROTO_FRAGMENT:;
         struct ip6_frag *header_f = (struct ip6_frag*)packet_ptr;
         packet_ptr += sizeof(struct ip6_frag);
         next_header = header_f->ip6f_nxt;
         break;
 
     /* Destination options */
-    case IPPROTO_DSTOPTS:
+    case IPPROTO_DSTOPTS:;
         struct ip6_dest *header_d = (struct ip6_dest*)packet_ptr;
         packet_ptr += sizeof(struct ip6_dest);
         next_header = header_d->ip6d_nxt;
@@ -256,24 +264,24 @@ void handle_ipv6_packet (const u_char *packet_ptr)
     case IPPROTO_TCP:
         tcp_header = (struct tcphdr*)packet_ptr;
         //TODO print
+        /* TODO smazat */
+        tcp_header = tcp_header;
         break;
 
     /* UDP                 */
     case IPPROTO_UDP:
         udp_header = (struct udphdr*)packet_ptr;
         //TODO print
+        /* TODO smazat */
+        udp_header = udp_header;
         break;
 
     /* ICMPv6              */
     case IPPROTO_ICMPV6:
         icmp_header = (struct icmp*)packet_ptr;
         //TODO print
-        break;
-
-    /* ARP                 */
-    case IPPROTO_ARP:
-        arp_header = (struct arphdr*)packet_ptr;
-        //TODO print
+        /* TODO smazat */
+        icmp_header = icmp_header;
         break;
     
     default:
@@ -306,7 +314,7 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const
      * the value, and then fetch the second byte, at an offset
      * of 13, and put it in the lower 8 bits of the value.
      */
-    int packet_type = ((int)packet[12] << 8) | (int)packet[13];
+    int packet_type = ((int)packet_ptr[12] << 8) | (int)packet_ptr[13];
 
     /***************************************************************************/
 
@@ -319,9 +327,12 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const
     // TODO time
 
 
-
-    
-
+    /*
+        TODO smazat
+     */
+    user = user;
+    packet_header = packet_header;
+    ip_flag = ip_flag;
 
 
 
@@ -424,6 +435,7 @@ int main (int argc, char *argv[])
     option_t opt = NULL;
     char *device = NULL;
     char *filter = NULL;
+    unsigned long packet_cnt;
 
     INIT_OPT(opt);    
 
@@ -451,12 +463,12 @@ int main (int argc, char *argv[])
         signal(SIGQUIT, stop_capture);
         
         device = opt->interface->interface_val;
-                
-        create_filter(opt, filter);
+        packet_cnt = (opt->num->num_set) ? opt->num->num_val : 0L;
 
-        //TODO s options
+        create_filter(opt, filter);
+        
         handle = create_pcap_handle(device, filter);
-    
+
         if (handle == NULL) {
             return EXIT_FAILURE;
         }
@@ -468,7 +480,7 @@ int main (int argc, char *argv[])
         }
 
         /* Start the packet capture with a set count or continually if the count is 0 */
-        if (pcap_loop(handle, /*TODO parametr n*/, packet_handler, (u_char*)NULL) < 0) {
+        if (pcap_loop(handle, packet_cnt, packet_handler, (u_char*)NULL) < 0) {
             fprintf(stderr, "pcap_loop failed: %s\n", pcap_geterr(handle));
             return EXIT_FAILURE;
         }

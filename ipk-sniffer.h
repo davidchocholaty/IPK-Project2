@@ -20,6 +20,15 @@
 #include <netinet/udp.h>
 #include <netinet/ip_icmp.h>
 
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <netinet/ip6.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
+#include <netinet/ip_icmp.h>
+#include <netinet/icmp6.h>
+#include <arpa/inet.h>
+
 #include "error.h"
 #include "option.h"
 
@@ -31,52 +40,59 @@
 #define IPv4 false
 #define IPv6 true
 
+#define PORT_FILTER_LEN 12
+
 #define IPv6_PACKET_TYPE 34525
 
-#define ADD_TCP_FILTER(opt, filter, port_is_set)             \
-        strcat(filter, "tcp");                               \
-                                                             \
-        if (port_is_set)                                     \
-        {                                                    \
-            strcat(filter, " port %d", opt->port->port_val); \
+#define ADD_TCP_FILTER(opt, filter, port_filter, port_is_set)      \
+        strcat(filter, "tcp");                                     \
+                                                                   \
+        if (port_is_set)                                           \
+        {                                                          \
+            sprintf(port_filter, " port %d", opt->port->port_val); \
+            strcat(filter, port_filter);                           \
         }
 
-#define ADD_UDP_FILTER(opt, filter, port_is_set)             \
-        if(strcmp(filter, "") != 0)                          \
-        {                                                    \
-            strcat(filter, " or ");                          \
-        }                                                    \
-                                                             \
-        strcat(filter, "udp");                               \
-                                                             \        
-        if (port_is_set)                                     \
-        {                                                    \
-            strcat(filter, " port %d", opt->port->port_val); \
+#define ADD_UDP_FILTER(opt, filter, port_filter, port_is_set)      \
+        if(strcmp(filter, "") != 0)                                \
+        {                                                          \
+            strcat(filter, " or ");                                \
+        }                                                          \
+                                                                   \
+        strcat(filter, "udp");                                     \
+                                                                   \
+        if (port_is_set)                                           \
+        {                                                          \
+            sprintf(port_filter, " port %d", opt->port->port_val); \
+            strcat(filter, port_filter);                           \
         }
 
-#define ADD_ICMP_FILTER(opt, filter, port_is_set)            \
-        if(strcmp(filter, "") != 0)                          \
-        {                                                    \
-            strcat(filter, " or ");                          \
-        }                                                    \
-                                                             \
-        strcat(filter, "icmp");                              \
-                                                             \        
-        if (port_is_set)                                     \
-        {                                                    \
-            strcat(filter, " port %d", opt->port->port_val); \
+#define ADD_ICMP_FILTER(opt, filter, port_filter, port_is_set)     \
+        if(strcmp(filter, "") != 0)                                \
+        {                                                          \
+            strcat(filter, " or ");                                \
+        }                                                          \
+                                                                   \
+        strcat(filter, "icmp");                                    \
+                                                                   \
+        if (port_is_set)                                           \
+        {                                                          \
+            sprintf(port_filter, " port %d", opt->port->port_val); \
+            strcat(filter, port_filter);                           \
         }
 
-#define ADD_ARP_FILTER(opt, filter, port_is_set)             \
-        if(strcmp(filter, "") != 0)                          \
-        {                                                    \
-            strcat(filter, " or ");                          \
-        }                                                    \
-                                                             \
-        strcat(filter, "arp");                               \
-                                                             \        
-        if (port_is_set)                                     \
-        {                                                    \
-            strcat(filter, " port %d", opt->port->port_val); \
+#define ADD_ARP_FILTER(opt, filter, port_filter, port_is_set)      \
+        if(strcmp(filter, "") != 0)                                \
+        {                                                          \
+            strcat(filter, " or ");                                \
+        }                                                          \
+                                                                   \
+        strcat(filter, "arp");                                     \
+                                                                   \
+        if (port_is_set)                                           \
+        {                                                          \
+            sprintf(port_filter, " port %d", opt->port->port_val); \
+            strcat(filter, port_filter);                           \
         }
+
 #endif // IPK_SNIFFER_H
