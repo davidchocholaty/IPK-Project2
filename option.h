@@ -23,11 +23,12 @@
 #define SET   true
 #define UNSET false
 
+#define INT_SIZE 256
+
 #define INIT_OPT(opt)                        \
         struct interface interface_default = \
         {                                    \
-            .interface_set = UNSET,          \
-            .interface_val = NULL            \
+            .interface_set = UNSET           \
         };                                   \
                                              \
         struct port port_default =           \
@@ -67,7 +68,7 @@ typedef struct option *option_t;
 struct interface
 {
     bool interface_set;
-    char *interface_val;
+    char interface_val[INT_SIZE];
 };
 
 struct port

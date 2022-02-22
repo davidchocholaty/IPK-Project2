@@ -40,7 +40,8 @@
 #define IPv4 false
 #define IPv6 true
 
-#define PORT_FILTER_LEN 12
+#define PORT_FILTER_MAX_LEN 12
+#define FILTER_MAX_LEN 70
 
 #define IPv6_PACKET_TYPE 34525
 

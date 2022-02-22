@@ -40,7 +40,7 @@ void create_filter (option_t opt, char *filter)
 {
     // tcp port <port> or udp port <port> or icmp port <port> or arp port <port>
     bool port_is_set = opt->port->port_set;
-    char port_filter[PORT_FILTER_LEN];
+    char port_filter[PORT_FILTER_MAX_LEN];
 
     strcpy(filter, "");
 
@@ -434,7 +434,7 @@ int main (int argc, char *argv[])
 {
     option_t opt = NULL;
     char *device = NULL;
-    char *filter = NULL;
+    char filter[FILTER_MAX_LEN];
     unsigned long packet_cnt;
 
     INIT_OPT(opt);    
