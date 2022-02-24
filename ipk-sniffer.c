@@ -230,7 +230,7 @@ void print_data (const u_char *packet_data, int size)
 }
 void print_timestamp ()
 {
-
+	printf("timestamp: \n");
 }
 
 void print_macs (const u_char *packet_ptr)
@@ -243,6 +243,11 @@ void print_macs (const u_char *packet_ptr)
 	printf("dst MAC: %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
 	       eth->h_dest[0], eth->h_dest[1], eth->h_dest[2],
 	       eth->h_dest[3], eth->h_dest[4], eth->h_dest[5]);
+}
+
+void print_frame_length ()
+{
+	printf("frame length: \n");
 }
 
 void print_ips (const u_char *packet_ptr)
@@ -270,7 +275,9 @@ void print_tcp_ports (const u_char *packet_ptr)
 
 void print_tcp_packet (const u_char *packet_ptr, int size)
 {
+	print_timestamp();
 	print_macs(packet_ptr);
+	print_frame_length();
 	print_ips(packet_ptr);
 	print_tcp_ports(packet_ptr);
 	print_data(packet_ptr, size);
@@ -518,13 +525,13 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const
 
 void stop_capture()
 {
-    struct pcap_stat stats;
+    //struct pcap_stat stats;
 
-    if (pcap_stats(handle, &stats) >= 0)
-    {
+    //if (pcap_stats(handle, &stats) >= 0)
+    //{
         //printf("%d packets received\n", stats.ps_recv);
         //printf("%d packets dropped\n\n", stats.ps_drop);
-    }
+    //}
 
     pcap_close(handle);
 
