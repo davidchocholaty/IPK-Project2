@@ -228,10 +228,6 @@ void print_data (const u_char *packet_data, int size)
         }
     }
 }
-void print_timestamp ()
-{
-	printf("timestamp: \n");
-}
 
 void print_macs (const u_char *packet_ptr)
 {
@@ -275,7 +271,6 @@ void print_tcp_ports (const u_char *packet_ptr)
 
 void print_tcp_packet (const u_char *packet_ptr, int size)
 {
-	print_timestamp();
 	print_macs(packet_ptr);
 	print_frame_length();
 	print_ips(packet_ptr);
@@ -476,8 +471,73 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
     }
 }
 
+/* https://gist.github.com/jedisct1/b7812ae9b4850e0053a21c922ed3e9dc */
+void print_timestamp (const struct timeval *timestamp)
+{
+	struct tm *tm;
+   	int off_sign;
+	int off;
+	
+	if ((tm = localtime(&timestamp->tv_sec)) == NULL) {
+		//TODO error
+    }
+    
+	off_sign = '+';
+    off = (int) tm->tm_gmtoff;
+    
+	if (tm->tm_gmtoff < 0) {
+        off_sign = '-';
+        off = -off;
+    }
+	
+	printf("timestamp: %d-%02d-%02dT%02d:%02d:%02d.%ld%c%02d:%02d\n",
+       tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+       tm->tm_hour, tm->tm_min, tm->tm_sec, timestamp->tv_usec,
+       off_sign, off / 3600, off % 3600);
+    
+	/*
+	time_t now = time(NULL);
+	struct tm *tm;
+	int off_sign;
+	int off;
+	
+	if ((tm = localtime(&now)) == NULL) {
+		//TODO error
+    }
+    
+    off_sign = '+';
+    off = (int) tm->tm_gmtoff;
+    
+	if (tm->tm_gmtoff < 0) {
+        off_sign = '-';
+        off = -off;
+    }
+    
+    // Milliseconds
+    struct timeval millis;
+    gettimeofday(&millis, NULL);
+    
+    
+    printf("timestamp: %d-%d-%dT%02d:%02d:%02d%c%02d:%02d\n",
+           tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+           tm->tm_hour, tm->tm_min, tm->tm_sec,
+           off_sign, off / 3600, off % 3600);
+    */
+    
+
+    
+    //printf("timestamp: %d-%d-%dT%02d:%02d:%02d.%03ld%c%02d:%02d\n",
+    //   tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+    //   tm->tm_hour, tm->tm_min, tm->tm_sec, millis.tv_usec,
+    //   off_sign, off / 3600, off % 3600);
+}
+
 void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const u_char *packet_ptr)
 {    
+	/* Time */
+
+	print_timestamp(&(packet_header->ts));
+
     /***************************************************************************/
 
     /*

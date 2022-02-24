@@ -29,8 +29,9 @@
 #include <netinet/icmp6.h>
 #include <arpa/inet.h>
 //TODO asi smazat
-#include<net/ethernet.h>
+#include <net/ethernet.h>
 
+#include <time.h>
 
 #include "error.h"
 #include "option.h"
