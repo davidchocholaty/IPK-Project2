@@ -205,6 +205,7 @@ void print_data (u_char *packet_data, int packet_size)
 /* https://www.binarytides.com/packet-sniffer-code-c-libpcap-linux-sockets/ */
 void print_data (const u_char *packet_data, int size)
 {
+
     int i, j;
 
     for (i = 0; i < size; i++)
@@ -288,29 +289,64 @@ void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
     u_int tcp_size;
 
     /* Skip the datalink layer header and get the IP header fields */
-    packet_ptr += link_header_len;
+    //TODO uncomment
+//    packet_ptr += link_header_len;
+    
     ip_header = (struct ip*)packet_ptr;
     strcpy(src_ip, inet_ntoa(ip_header->ip_src));
     strcpy(dst_ip, inet_ntoa(ip_header->ip_dst));
 
     /* Advance to the transport layer header */
     ip_size = 4*ip_header->ip_hl;
-    packet_ptr += ip_size;
+        //TODO uncomment
+//    packet_ptr += ip_size;
 
     /* Parse and display the fields based on the type of hearder: tcp, udp, icmp or arp */
+//    switch (ip_header->ip_p)
+	ip_header = (struct ip*)(packet_ptr + sizeof(struct ethhdr));
     switch (ip_header->ip_p)
     {
     /* TCP    */
     case IPPROTO_TCP:
-        tcp_header = (struct tcphdr*)packet_ptr;
-        tcp_size = 4 * tcp_header->doff;
+    
+        //tcp_header = (struct tcphdr*)packet_ptr;
+        //tcp_size = 4 * tcp_header->doff;
 
-        //(link_header_length + ip_size + tcp_size)
+/*
+	// header_size = + ip_size + tcp_size;
+
+	// packet_ptr = buffer + link_header_length
 
 
-        //TODO print
-        /* TODO smazat */        
+	u_int size = link_header_len + ip_size + tcp_size;
+
+        //(link_header_len + ip_size + tcp_size)
+        //print_data(packet_ptr, packet_header->caplen);
+        print_data(packet_ptr, size);
+
+*/
+        // TODO print
+        // TODO smazat
+//        tcp_size = tcp_size;    
         packet_header = packet_header;
+	ip_size = ip_size;
+//	int size = packet_header->len;
+//	int header_size = sizeof(struct ethhdr) + ip_size + tcp_size;
+	
+//	print_data(packet_ptr + header_size, size - header_size);
+
+	struct iphdr *iph = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
+	int ip_header_len = iph->ihl * 4;
+
+	// ethernet header size + ipv4 header size
+	tcp_header = (struct tcphdr*)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
+	tcp_size = 4 * tcp_header->doff;
+	
+	int header_size = sizeof(struct ethhdr) + ip_header_len + tcp_size;
+
+	int size = packet_header->len;
+
+	print_data(packet_ptr + header_size, size - header_size);
 
         break;
     
