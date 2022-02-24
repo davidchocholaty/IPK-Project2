@@ -213,13 +213,20 @@ void print_data (const u_char *packet_data, int size)
         //if one line of hex printing is complete...
         if ((i != 0) && (i % 16 == 0))
         {
-            printf("         ");
+//            printf("         ");
+//            printf("CCCCCCCCC");
+			printf(" ");
 
             for (j = i - 16; j < i; j++)
             {
+            	if (j % 8 == 0)
+            	{
+            		printf(" ");
+            	}
+            	
                 if (isprint(packet_data[j]))
                 {
-                    printf("%c", (unsigned char) packet_data[i]);
+                    printf("%c", (unsigned char) packet_data[j]);
                 }
                 else
                 {
@@ -229,8 +236,20 @@ void print_data (const u_char *packet_data, int size)
             printf("\n");
         }
         
-        if (i % 16 == 0) printf("   ");
-            printf(" %02X", (unsigned char)packet_data[i]);
+        if (i % 16 == 0)
+        {
+            printf("   ");
+//			printf("AAA");
+        }
+        else if (i % 8 == 0)
+        {
+//        	printf("B");
+			printf(" ");
+        }
+        
+        
+        
+        printf(" %02x", (unsigned char)packet_data[i]);
 
         if (i == size - 1) // print the last spaces
         {
@@ -239,10 +258,16 @@ void print_data (const u_char *packet_data, int size)
                 printf("   "); //extra spaces
             }
             
-            printf("         ");
+//            printf("         ");
+			printf(" ");
 
             for (j = i - i%16; j <= i; j++)
-            {
+            {	            
+            	if (j % 8 == 0)
+            	{
+            		printf(" ");
+            	}
+            	
                 if (isprint(packet_data[j]))
                 {
                     printf("%c", (unsigned char) packet_data[j]);
@@ -255,6 +280,26 @@ void print_data (const u_char *packet_data, int size)
             printf("\n" );
         }
     }
+}
+
+void print_tcp_packet (const u_char *packet_ptr, int size)
+{
+	//struct iphdr *iph = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
+	//int ip_header_len = iph->ihl * 4;
+
+	// ethernet header size + ipv4 header size
+	//struct tcphdr *tcp_header = (struct tcphdr*)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
+	
+	//u_int tcp_size = 4 * tcp_header->doff;
+	//int header_size = sizeof(struct ethhdr) + ip_header_len + tcp_size;
+	
+	// IP header
+	//print_data(packet_ptr, ip_header_len);
+	// TCP header
+	//print_data(packet_ptr + ip_header_len, tcp_size);
+	// Data payload
+	//print_data(packet_ptr + header_size, size - header_size);
+	print_data(packet_ptr, size);
 }
 
 void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *packet_header)
@@ -327,7 +372,7 @@ void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
 */
         // TODO print
         // TODO smazat
-//        tcp_size = tcp_size;    
+        //tcp_size = tcp_size;    
         packet_header = packet_header;
 	ip_size = ip_size;
 //	int size = packet_header->len;
@@ -342,11 +387,12 @@ void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
 	tcp_header = (struct tcphdr*)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
 	tcp_size = 4 * tcp_header->doff;
 	
-	int header_size = sizeof(struct ethhdr) + ip_header_len + tcp_size;
+	//int header_size = sizeof(struct ethhdr) + ip_header_len + tcp_size;
 
 	int size = packet_header->len;
-
-	print_data(packet_ptr + header_size, size - header_size);
+	tcp_size = tcp_size;    
+	//print_data(packet_ptr + header_size, size - header_size);
+	print_tcp_packet(packet_ptr, size);
 
         break;
     
