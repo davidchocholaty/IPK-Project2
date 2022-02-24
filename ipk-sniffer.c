@@ -238,7 +238,9 @@ void print_data (const u_char *packet_data, int size)
         
         if (i % 16 == 0)
         {
-            printf("   ");
+	       	printf("0x00%d0: ", i/16);
+        	
+//            printf("   ");
 //			printf("AAA");
         }
         else if (i % 8 == 0)
