@@ -63,7 +63,7 @@ void create_filter (option_t opt, char *filter)
     }
 
     /* ARP  */
-    if (opt->tcp_set)
+    if (opt->arp_set)
     {
         ADD_ARP_FILTER(opt, filter, port_filter, port_is_set);
     }    
@@ -143,64 +143,6 @@ void get_link_header_len(pcap_t* handle)
         link_header_len = 0;
     }
 }
-/*
-void print_hex (u_char *packet_data, int start, int end)
-{
-    printf(" ");
-
-    for (int i = start; i < end; i++)
-    {
-        printf("%02x ", packet_data[i]);
-    }
-    
-    int rest = end - start;
-
-    if (rest < 16)
-    {
-        for (int i = 0; i < 16; i++)
-        {
-            printf("   ");
-        }        
-    }
-
-    printf(" ");
-}
-
-void print_ascii (u_char *packet_data, int start, int end)
-{
-    for (int i = start; i < end; i++)
-    {
-        if (isprint(packet_data[i]))
-        {
-            printf("%c", packet_data[i]);
-        }
-        else
-        {
-            print(".");
-        }
-    }
-}
-
-void print_data (u_char *packet_data, int packet_size)
-{
-    if (packet_size == 0)
-    {
-        // TODO
-    }
-    
-    int i = 0;
-
-    const int S = 16;
-
-    for (i = 0; i <= packet_size - S; i+=S)
-    {
-        printf("0x%04x ", i);
-        print_hex(packet_data, i, S + i);
-        print_ascii(packet_data, i, S + i);
-        printf("\n");
-    }
-}
-*/
 
 /* https://www.binarytides.com/packet-sniffer-code-c-libpcap-linux-sockets/ */
 void print_data (const u_char *packet_data, int size)
@@ -213,17 +155,18 @@ void print_data (const u_char *packet_data, int size)
         //if one line of hex printing is complete...
         if ((i != 0) && (i % 16 == 0))
         {
-//            printf("         ");
-//            printf("CCCCCCCCC");
+        	/* Space between hexa and ascii */
 			printf(" ");
 
             for (j = i - 16; j < i; j++)
             {
+            	/* Space at start and in the middle of ascii values */
             	if (j % 8 == 0)
             	{
             		printf(" ");
             	}
             	
+            	/* Print ascii value */
                 if (isprint(packet_data[j]))
                 {
                     printf("%c", (unsigned char) packet_data[j]);
@@ -236,40 +179,41 @@ void print_data (const u_char *packet_data, int size)
             printf("\n");
         }
         
+        /* Print offset */
         if (i % 16 == 0)
         {
-	       	printf("0x00%d0: ", i/16);
-        	
-//            printf("   ");
-//			printf("AAA");
+	       	printf("0x%03x0: ", i/16);
         }
+		/* Print space in the middle of hexa values */
         else if (i % 8 == 0)
         {
-//        	printf("B");
 			printf(" ");
-        }
+        }                
         
-        
-        
+        /* Print hexa value */
         printf(" %02x", (unsigned char)packet_data[i]);
 
-        if (i == size - 1) // print the last spaces
+		/* Print the last spaces */
+        if (i == size - 1)
         {
             for (j = 0; j < 15 - i%16; j++)
             {
-                printf("   "); //extra spaces
+	            /* Extra spaces */
+                printf("   ");
             }
             
-//            printf("         ");
+            /* Space between hexa and ascii values at last row */
 			printf(" ");
 
             for (j = i - i%16; j <= i; j++)
             {	            
+				/* Space at start and in the middle of ascii values at last row */
             	if (j % 8 == 0)
             	{
             		printf(" ");
             	}
             	
+            	/* Print ascii values at last row */
                 if (isprint(packet_data[j]))
                 {
                     printf("%c", (unsigned char) packet_data[j]);
@@ -279,28 +223,56 @@ void print_data (const u_char *packet_data, int size)
                     printf(".");
                 }                           
             }
+            
             printf("\n" );
         }
     }
 }
+void print_timestamp ()
+{
+
+}
+
+void print_macs (const u_char *packet_ptr)
+{
+	struct ethhdr *eth = (struct ethhdr *)packet_ptr;
+	
+	printf("src MAC: %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
+	       eth->h_source[0], eth->h_source[1], eth->h_source[2],
+	       eth->h_source[3], eth->h_source[4], eth->h_source[5]);
+	printf("dst MAC: %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
+	       eth->h_dest[0], eth->h_dest[1], eth->h_dest[2],
+	       eth->h_dest[3], eth->h_dest[4], eth->h_dest[5]);
+}
+
+void print_ips (const u_char *packet_ptr)
+{
+	struct iphdr *ip_header = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
+	struct sockaddr_in source, dest;
+	
+	source.sin_addr.s_addr = ip_header->saddr;
+	dest.sin_addr.s_addr = ip_header->daddr;
+
+	printf("src IP: %s\n" , inet_ntoa(source.sin_addr));
+	printf("dst IP: %s\n" , inet_ntoa(dest.sin_addr));
+}
+
+void print_tcp_ports (const u_char *packet_ptr)
+{
+	struct iphdr *iph = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
+	unsigned short ip_header_len = 4*iph->ihl;
+	
+	struct tcphdr *tcp_header = (struct tcphdr*)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
+
+	printf("src port: %u\n", ntohs(tcp_header->source));
+	printf("dst port: %u\n", ntohs(tcp_header->dest));
+}
 
 void print_tcp_packet (const u_char *packet_ptr, int size)
 {
-	//struct iphdr *iph = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
-	//int ip_header_len = iph->ihl * 4;
-
-	// ethernet header size + ipv4 header size
-	//struct tcphdr *tcp_header = (struct tcphdr*)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
-	
-	//u_int tcp_size = 4 * tcp_header->doff;
-	//int header_size = sizeof(struct ethhdr) + ip_header_len + tcp_size;
-	
-	// IP header
-	//print_data(packet_ptr, ip_header_len);
-	// TCP header
-	//print_data(packet_ptr + ip_header_len, tcp_size);
-	// Data payload
-	//print_data(packet_ptr + header_size, size - header_size);
+	print_macs(packet_ptr);
+	print_ips(packet_ptr);
+	print_tcp_ports(packet_ptr);
 	print_data(packet_ptr, size);
 }
 
@@ -355,44 +327,21 @@ void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
     {
     /* TCP    */
     case IPPROTO_TCP:
-    
-        //tcp_header = (struct tcphdr*)packet_ptr;
-        //tcp_size = 4 * tcp_header->doff;
-
-/*
-	// header_size = + ip_size + tcp_size;
-
-	// packet_ptr = buffer + link_header_length
-
-
-	u_int size = link_header_len + ip_size + tcp_size;
-
-        //(link_header_len + ip_size + tcp_size)
-        //print_data(packet_ptr, packet_header->caplen);
-        print_data(packet_ptr, size);
-
-*/
-        // TODO print
+    //TODO aby fungoval filter tcp
         // TODO smazat
-        //tcp_size = tcp_size;    
         packet_header = packet_header;
-	ip_size = ip_size;
-//	int size = packet_header->len;
-//	int header_size = sizeof(struct ethhdr) + ip_size + tcp_size;
-	
-//	print_data(packet_ptr + header_size, size - header_size);
+		ip_size = ip_size;
 
-	struct iphdr *iph = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
-	int ip_header_len = iph->ihl * 4;
+		struct iphdr *iph = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
+		int ip_header_len = iph->ihl * 4;
 
-	// ethernet header size + ipv4 header size
-	tcp_header = (struct tcphdr*)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
-	tcp_size = 4 * tcp_header->doff;
-	
-	//int header_size = sizeof(struct ethhdr) + ip_header_len + tcp_size;
+		// ethernet header size + ipv4 header size
+		tcp_header = (struct tcphdr*)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
+		tcp_size = 4 * tcp_header->doff;
+		tcp_size = tcp_size;    
+		//int header_size = sizeof(struct ethhdr) + ip_header_len + tcp_size;
 
 	int size = packet_header->len;
-	tcp_size = tcp_size;    
 	//print_data(packet_ptr + header_size, size - header_size);
 	print_tcp_packet(packet_ptr, size);
 
@@ -573,8 +522,8 @@ void stop_capture()
 
     if (pcap_stats(handle, &stats) >= 0)
     {
-        printf("%d packets received\n", stats.ps_recv);
-        printf("%d packets dropped\n\n", stats.ps_drop);
+        //printf("%d packets received\n", stats.ps_recv);
+        //printf("%d packets dropped\n\n", stats.ps_drop);
     }
 
     pcap_close(handle);
