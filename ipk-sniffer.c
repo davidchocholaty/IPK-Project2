@@ -38,7 +38,7 @@ bool valid_interface (option_t opt)
 
 void create_filter (option_t opt, char *filter)
 {
-    // tcp port <port> or udp port <port> or icmp port <port> or arp port <port>
+    // tcp port <port> or udp port <port> or icmp port <port> or icmp6 port <port> or arp port <port>
     bool port_is_set = opt->port->port_set;
     char port_filter[PORT_FILTER_MAX_LEN];
 
@@ -386,6 +386,15 @@ void print_ipv6_udp_packet (const u_char *packet_ptr, int size)
 	print_data(packet_ptr, size);
 }
 
+void print_ipv6_icmp_packet (const u_char *packet_ptr, int size)
+{
+	print_macs(packet_ptr);
+	print_frame_length(size);
+	print_ipv6_ips(packet_ptr);
+	print_vertical_indent();
+	print_data(packet_ptr, size);
+}
+
 void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *packet_header)
 {
     struct ip *ip_header = (struct ip *)(packet_ptr + sizeof(struct ethhdr));
@@ -477,15 +486,13 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
 
     /* ICMPv6              */
     case IPPROTO_ICMPV6:
-
+		print_ipv6_icmp_packet(packet_ptr, size);
+		
         break;
     
     default:
         break;
     }
-    
-    //TODO smazat
-    packet_header = packet_header;
 }
 
 /* https://gist.github.com/jedisct1/b7812ae9b4850e0053a21c922ed3e9dc */
@@ -607,7 +614,7 @@ int main (int argc, char *argv[])
         packet_cnt = (opt->num->num_set) ? opt->num->num_val : 0L;
 
         create_filter(opt, filter);
-        
+
         handle = create_pcap_handle(device, filter);
 
         if (handle == NULL) {

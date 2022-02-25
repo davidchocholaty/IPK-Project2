@@ -86,6 +86,14 @@
         {                                                          \
             sprintf(port_filter, " port %d", opt->port->port_val); \
             strcat(filter, port_filter);                           \
+        }                                                          \
+                                                                   \
+        strcat(filter, " or icmp6");                               \
+                                                                   \
+        if (port_is_set)                                           \
+        {                                                          \
+            sprintf(port_filter, " port %d", opt->port->port_val); \
+            strcat(filter, port_filter);                           \
         }
 
 #define ADD_ARP_FILTER(opt, filter, port_filter, port_is_set)      \
