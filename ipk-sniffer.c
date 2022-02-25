@@ -69,8 +69,9 @@ void create_filter (option_t opt, char *filter)
     }    
 }
 
-pcap_t *create_pcap_handle (char *device, char *filter)
+pcap_t *create_pcap_handle (char *device, const char *filter)
 {
+printf("filter:%s\n", filter);
     char err_buf[PCAP_ERRBUF_SIZE];
     pcap_t *handle = NULL;
     struct bpf_program bpf;
@@ -92,7 +93,7 @@ pcap_t *create_pcap_handle (char *device, char *filter)
     }
 
     /* Convert the packet filter epxression into a packet filter binary */
-    if (pcap_compile(handle, &bpf, filter, 0, netmask) == PCAP_ERROR)
+    if (pcap_compile(handle, &bpf, (char *)filter, 0, netmask) == PCAP_ERROR)
     {
         fprintf(stderr, "pcap_compile(): %s\n", pcap_geterr(handle));
         return NULL;
@@ -293,11 +294,9 @@ void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
     switch (ip_header->ip_p)
     {
     /* TCP    */
-    case IPPROTO_TCP:
-    	//TODO aby fungoval filter tcp       
-
+    case IPPROTO_TCP:    
 		print_tcp_packet(packet_ptr, size);
-
+		
         break;
     
     /* UDP    */
