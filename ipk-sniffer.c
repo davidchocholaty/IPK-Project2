@@ -246,9 +246,9 @@ void print_macs (const u_char *packet_ptr)
 	       eth->h_dest[3], eth->h_dest[4], eth->h_dest[5]);
 }
 
-void print_frame_length ()
+void print_frame_length (int size)
 {
-	printf("frame length: \n");
+	printf("frame length: %d bytes\n", size);
 }
 
 void print_ips (const u_char *packet_ptr)
@@ -278,7 +278,7 @@ void print_tcp_ports (const u_char *packet_ptr)
 void print_tcp_packet (const u_char *packet_ptr, int size)
 {
 	print_macs(packet_ptr);
-	print_frame_length();
+	print_frame_length(size);
 	print_ips(packet_ptr);
 	print_tcp_ports(packet_ptr);
 	print_data(packet_ptr, size);
