@@ -71,7 +71,6 @@ void create_filter (option_t opt, char *filter)
 
 pcap_t *create_pcap_handle (char *device, const char *filter)
 {
-printf("filter:%s\n", filter);
     char err_buf[PCAP_ERRBUF_SIZE];
     pcap_t *handle = NULL;
     struct bpf_program bpf;
@@ -230,7 +229,7 @@ void print_data (const u_char *packet_data, int size)
                 }                           
             }
             
-            printf("\n" );
+            printf("\n\n\n");
         }
     }
 }
