@@ -16,6 +16,16 @@
  * https://www.binarytides.com/packet-sniffer-code-c-libpcap-linux-sockets/
  */
 
+/*
+ * TODO
+ *
+ * prepinac port: 
+ *
+ * -p 23 (bude filtrování paketů na daném rozhraní podle portu; nebude-li tento parametr
+ * uveden, uvažují se všechny porty; pokud je parametr uveden, může se daný port vyskytnout
+ * jak v source, tak v destination části)
+ */
+
 #include "ipk-sniffer.h"
 
 pcap_t *handle;
@@ -28,11 +38,11 @@ bool valid_interface (option_t opt)
     bool is_set = opt->interface->interface_set;
     char *val = opt->interface->interface_val;
 
-    if (is_set && val != NULL)
+    if (is_set && strcmp(val, "") != 0)
     {
         is_valid = true;
     }
-    
+
     return is_valid;
 }
 
@@ -287,7 +297,6 @@ void print_tcp_ports (const u_char *packet_ptr)
 
 	printf("src port: %u\n", ntohs(tcp_header->source));
 	printf("dst port: %u\n", ntohs(tcp_header->dest));
-	printf("\n");
 }
 
 void print_udp_ports (const u_char *packet_ptr)
@@ -310,7 +319,6 @@ void print_ipv6_tcp_ports (const u_char *packet_ptr)
 
 	printf("src port: %u\n", ntohs(tcp_header->source));
 	printf("dst port: %u\n", ntohs(tcp_header->dest));
-	printf("\n");	
 }
 
 void print_ipv6_udp_ports (const u_char *packet_ptr)
@@ -405,26 +413,22 @@ void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
     {
     /* TCP    */
     case IPPROTO_TCP:    
-		print_tcp_packet(packet_ptr, size);
-		
+	print_tcp_packet(packet_ptr, size);		
         break;
     
     /* UDP    */
     case IPPROTO_UDP:
-		print_udp_packet(packet_ptr, size);
-
+	print_udp_packet(packet_ptr, size);
         break;
 
     /* ICMPv4 */
     case IPPROTO_ICMP:
-		print_icmp_packet(packet_ptr, size);
-
+	print_icmp_packet(packet_ptr, size);
         break;
 
     /* ARP    */    
     default:
-		print_arp_frame(packet_ptr, size);
-
+	print_arp_frame(packet_ptr, size);
         break;
     }
 }
@@ -474,20 +478,17 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
     {
     /* TCP                 */
     case IPPROTO_TCP:
-		print_ipv6_tcp_packet(packet_ptr, size);
-
+	print_ipv6_tcp_packet(packet_ptr, size);
         break;
 
     /* UDP                 */
     case IPPROTO_UDP:
-		print_ipv6_udp_packet(packet_ptr, size);
-
+	print_ipv6_udp_packet(packet_ptr, size);
         break;
 
     /* ICMPv6              */
     case IPPROTO_ICMPV6:
-		print_ipv6_icmp_packet(packet_ptr, size);
-		
+	print_ipv6_icmp_packet(packet_ptr, size);		
         break;
     
     default:
@@ -502,22 +503,24 @@ int print_timestamp (const struct timeval *timestamp)
    	int off_sign;
 	int off;
 	
-	if ((tm = localtime(&timestamp->tv_sec)) == NULL) {
+	if ((tm = localtime(&timestamp->tv_sec)) == NULL)
+	{
 		return EXIT_FAILURE;
-    }
+    	}
     
 	off_sign = '+';
-    off = (int) tm->tm_gmtoff;
+    	off = (int) tm->tm_gmtoff;
     
-	if (tm->tm_gmtoff < 0) {
-        off_sign = '-';
-        off = -off;
-    }
+	if (tm->tm_gmtoff < 0)
+	{
+	        off_sign = '-';
+        	off = -off;
+    	}
 	
 	printf("timestamp: %d-%02d-%02dT%02d:%02d:%02d.%ld%c%02d:%02d\n",
-       tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
-       tm->tm_hour, tm->tm_min, tm->tm_sec, timestamp->tv_usec,
-       off_sign, off / 3600, off % 3600);
+	        tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+	        tm->tm_hour, tm->tm_min, tm->tm_sec, timestamp->tv_usec,
+	        off_sign, off / 3600, off % 3600);
 
 	return EXIT_SUCCESS;
 }
@@ -602,7 +605,7 @@ int main (int argc, char *argv[])
     char filter[FILTER_MAX_LEN];
     unsigned long packet_cnt;
 
-    INIT_OPT(opt);    
+    INIT_OPT(opt);
 
     if (parse_args(argc, argv, opt) != EXIT_SUCCESS)
     {
@@ -618,9 +621,8 @@ int main (int argc, char *argv[])
     {
         if (!valid_interface(opt))
         {
-        	print_interfaces();
-            // TODO jestli EXIT_SUCCESS nebo EXIT_FAILURE
-            return EXIT_SUCCESS;
+	       	print_interfaces();
+	        return EXIT_FAILURE;
         }
 
         signal(SIGINT, stop_capture);
@@ -628,29 +630,33 @@ int main (int argc, char *argv[])
         signal(SIGQUIT, stop_capture);
         
         device = opt->interface->interface_val;
-        packet_cnt = (opt->num->num_set) ? opt->num->num_val : 0L;
+        packet_cnt = (opt->num->num_set) ? opt->num->num_val : 1;
 
         create_filter(opt, filter);
 
         handle = create_pcap_handle(device, filter);
 
-        if (handle == NULL) {
+        if (handle == NULL)
+        {
             return EXIT_FAILURE;
         }
 
         /* Get the type of link layer */
         get_link_header_len(handle);
-        if (link_header_len == 0) {
+        
+        if (link_header_len == 0)
+        {
             return EXIT_FAILURE;
         }
 
         /* Start the packet capture with a set count or continually if the count is 0 */
-        if (pcap_loop(handle, packet_cnt, packet_handler, (u_char*)NULL) < 0) {
+        if (pcap_loop(handle, packet_cnt, packet_handler, (u_char*)NULL) < 0)
+        {
             fprintf(stderr, "pcap_loop failed: %s\n", pcap_geterr(handle));
             return EXIT_FAILURE;
         }
         
-        stop_capture();        
+        stop_capture();
     }
 
     return EXIT_SUCCESS;

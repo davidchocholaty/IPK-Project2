@@ -45,7 +45,7 @@
 #define IPv6 true
 
 #define PORT_FILTER_MAX_LEN 12
-#define FILTER_MAX_LEN 70
+#define FILTER_MAX_LEN 90
 
 #define UDP_SIZE 8
 

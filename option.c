@@ -180,8 +180,8 @@ int parse_short_opt (int argc,
         case ':':
             if (optopt == 'i')
             {
-                opt->interface->interface_set = SET;
-                break;
+		opt->interface->interface_set = SET;
+		break;
             }
             
             return EXIT_FAILURE;

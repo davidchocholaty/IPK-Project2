@@ -28,7 +28,8 @@
 #define INIT_OPT(opt)                        \
         struct interface interface_default = \
         {                                    \
-            .interface_set = UNSET           \
+            .interface_set = UNSET,          \
+            .interface_val = ""              \
         };                                   \
                                              \
         struct port port_default =           \
