@@ -263,10 +263,25 @@ void print_ips (const u_char *packet_ptr)
 	printf("dst IP: %s\n" , inet_ntoa(dest.sin_addr));
 }
 
+void print_ipv6_ips (const u_char *packet_ptr)
+{
+	//TODO
+	struct ip6_hdr *ipv6_header = (struct ip6_hdr *)(packet_ptr + sizeof(struct ethhdr));
+
+	char ipv6_src_ip[INET6_ADDRSTRLEN];
+	char ipv6_dst_ip[INET6_ADDRSTRLEN];
+
+    inet_ntop(AF_INET6, &(ipv6_header->ip6_src), ipv6_src_ip, INET6_ADDRSTRLEN);
+    inet_ntop(AF_INET6, &(ipv6_header->ip6_dst), ipv6_dst_ip, INET6_ADDRSTRLEN);
+	
+	printf("src IP: %s\n", ipv6_src_ip);
+	printf("dst IP: %s\n", ipv6_dst_ip);
+}
+
 void print_tcp_ports (const u_char *packet_ptr)
 {
-	struct iphdr *iph = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
-	unsigned short ip_header_len = 4*iph->ihl;
+	struct iphdr *ip_header = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
+	unsigned short ip_header_len = 4*ip_header->ihl;	
 	
 	struct tcphdr *tcp_header = (struct tcphdr *)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
 
@@ -275,10 +290,22 @@ void print_tcp_ports (const u_char *packet_ptr)
 	printf("\n");
 }
 
+void print_ipv6_tcp_ports (const u_char *packet_ptr)
+{
+	struct iphdr *ip_header = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
+	unsigned short ip_header_len = 4*ip_header->ihl + sizeof(struct ip6_hdr);
+	
+	struct tcphdr *tcp_header = (struct tcphdr *)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
+
+	printf("src port: %u\n", ntohs(tcp_header->source));
+	printf("dst port: %u\n", ntohs(tcp_header->dest));
+	printf("\n");	
+}
+
 void print_udp_ports (const u_char *packet_ptr)
 {
-	struct iphdr *iph = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
-	unsigned short ip_header_len = 4*iph->ihl;
+	struct iphdr *ip_header = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
+	unsigned short ip_header_len = 4*ip_header->ihl;
 	
 	struct udphdr *udp_header = (struct udphdr *)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
 	
@@ -324,14 +351,23 @@ void print_arp_frame (const u_char *packet_ptr, int size)
 {
 	print_macs(packet_ptr);
 	print_frame_length(size);
-//	print_ips(packet_ptr);
 	print_vertical_indent();
 	print_data(packet_ptr, size);		
 }
 
+void print_ipv6_tcp_packet (const u_char *packet_ptr, int size)
+{
+	print_macs(packet_ptr);
+	print_frame_length(size);
+	print_ipv6_ips(packet_ptr);	
+	print_ipv6_tcp_ports(packet_ptr);
+	print_vertical_indent();
+	print_data(packet_ptr, size);	
+}
+
 void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *packet_header)
 {
-    struct ip *ip_header = (struct ip*)(packet_ptr + sizeof(struct ethhdr));
+    struct ip *ip_header = (struct ip *)(packet_ptr + sizeof(struct ethhdr));
 	int size = packet_header->len;
 
     /* Parse and display the fields based on the type of hearder: tcp, udp, icmp or arp */
@@ -365,22 +401,16 @@ void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
 
 void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *packet_header)
 {
-    struct ip6_hdr *ipv6_header;
-    struct tcphdr* tcp_header;
-    struct udphdr* udp_header;
-    struct icmp* icmp_header;
-    
-    //TODO velikost
-    char ipv6_src_ip[256];
-    char ipv6_dst_ip[256];
+    struct ip6_hdr *ipv6_header = (struct ip6_hdr *)(packet_ptr + sizeof(struct ethhdr));
+    int size = packet_header->len;
 
     /* Skip the datalink layer header and get the IP header fields */
-    packet_ptr += link_header_len;
-    ipv6_header = (struct ip6_hdr*)packet_ptr;
+//    packet_ptr += link_header_len;
+//    ipv6_header = (struct ip6_hdr*)packet_ptr;
 
     /* Get ipv6 header */
-    inet_ntop(AF_INET6, &(ipv6_header->ip6_src), ipv6_src_ip, INET6_ADDRSTRLEN);
-    inet_ntop(AF_INET6, &(ipv6_header->ip6_dst), ipv6_dst_ip, INET6_ADDRSTRLEN);
+    //inet_ntop(AF_INET6, &(ipv6_header->ip6_src), ipv6_src_ip, INET6_ADDRSTRLEN);
+    //inet_ntop(AF_INET6, &(ipv6_header->ip6_dst), ipv6_dst_ip, INET6_ADDRSTRLEN);
 
     int next_header = ipv6_header->ip6_nxt;
 
@@ -427,33 +457,26 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
     {
     /* TCP                 */
     case IPPROTO_TCP:
-        tcp_header = (struct tcphdr*)packet_ptr;
-        //TODO print
-        /* TODO smazat */
-        tcp_header = tcp_header;
-        packet_header = packet_header;
+		print_ipv6_tcp_packet(packet_ptr, size);
 
         break;
 
     /* UDP                 */
     case IPPROTO_UDP:
-        udp_header = (struct udphdr*)packet_ptr;
-        //TODO print
-        /* TODO smazat */
-        udp_header = udp_header;
+
         break;
 
     /* ICMPv6              */
     case IPPROTO_ICMPV6:
-        icmp_header = (struct icmp*)packet_ptr;
-        //TODO print
-        /* TODO smazat */
-        icmp_header = icmp_header;
+
         break;
     
     default:
         break;
     }
+    
+    //TODO smazat
+    packet_header = packet_header;
 }
 
 /* https://gist.github.com/jedisct1/b7812ae9b4850e0053a21c922ed3e9dc */
