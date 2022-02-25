@@ -320,6 +320,15 @@ void print_icmp_packet (const u_char *packet_ptr, int size)
 	print_data(packet_ptr, size);
 }
 
+void print_arp_frame (const u_char *packet_ptr, int size)
+{
+	print_macs(packet_ptr);
+	print_frame_length(size);
+//	print_ips(packet_ptr);
+	print_vertical_indent();
+	print_data(packet_ptr, size);		
+}
+
 void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *packet_header)
 {
     struct ip *ip_header = (struct ip*)(packet_ptr + sizeof(struct ethhdr));
@@ -348,8 +357,7 @@ void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
 
     /* ARP    */    
     default:
-        //arp_header = (struct arphdr*)packet_ptr;
-        //TODO print
+		print_arp_frame(packet_ptr, size);
 
         break;
     }
