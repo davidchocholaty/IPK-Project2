@@ -290,6 +290,17 @@ void print_tcp_ports (const u_char *packet_ptr)
 	printf("\n");
 }
 
+void print_udp_ports (const u_char *packet_ptr)
+{
+	struct iphdr *ip_header = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
+	unsigned short ip_header_len = 4*ip_header->ihl;
+	
+	struct udphdr *udp_header = (struct udphdr *)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
+	
+	printf("src port: %u\n", ntohs(udp_header->source));
+	printf("dst port: %u\n", ntohs(udp_header->dest));
+}
+
 void print_ipv6_tcp_ports (const u_char *packet_ptr)
 {
 	struct iphdr *ip_header = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
@@ -302,15 +313,15 @@ void print_ipv6_tcp_ports (const u_char *packet_ptr)
 	printf("\n");	
 }
 
-void print_udp_ports (const u_char *packet_ptr)
+void print_ipv6_udp_ports (const u_char *packet_ptr)
 {
 	struct iphdr *ip_header = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
-	unsigned short ip_header_len = 4*ip_header->ihl;
+	unsigned short ip_header_len = 4*ip_header->ihl + sizeof(struct ip6_hdr);
 	
 	struct udphdr *udp_header = (struct udphdr *)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
 	
 	printf("src port: %u\n", ntohs(udp_header->source));
-	printf("dst port: %u\n", ntohs(udp_header->dest));
+	printf("dst port: %u\n", ntohs(udp_header->dest));	
 }
 
 void print_vertical_indent()
@@ -362,7 +373,17 @@ void print_ipv6_tcp_packet (const u_char *packet_ptr, int size)
 	print_ipv6_ips(packet_ptr);	
 	print_ipv6_tcp_ports(packet_ptr);
 	print_vertical_indent();
-	print_data(packet_ptr, size);	
+	print_data(packet_ptr, size);
+}
+
+void print_ipv6_udp_packet (const u_char *packet_ptr, int size)
+{
+	print_macs(packet_ptr);
+	print_frame_length(size);
+	print_ipv6_ips(packet_ptr);	
+	print_ipv6_udp_ports(packet_ptr);
+	print_vertical_indent();
+	print_data(packet_ptr, size);
 }
 
 void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *packet_header)
@@ -403,20 +424,7 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
 {
     struct ip6_hdr *ipv6_header = (struct ip6_hdr *)(packet_ptr + sizeof(struct ethhdr));
     int size = packet_header->len;
-
-    /* Skip the datalink layer header and get the IP header fields */
-//    packet_ptr += link_header_len;
-//    ipv6_header = (struct ip6_hdr*)packet_ptr;
-
-    /* Get ipv6 header */
-    //inet_ntop(AF_INET6, &(ipv6_header->ip6_src), ipv6_src_ip, INET6_ADDRSTRLEN);
-    //inet_ntop(AF_INET6, &(ipv6_header->ip6_dst), ipv6_dst_ip, INET6_ADDRSTRLEN);
-
     int next_header = ipv6_header->ip6_nxt;
-
-    /*
-    TODO jestli jeste nejake to pricitani 40
-    */
 
     /* Determining if the packet has an extended header  */
     switch (next_header)
@@ -463,6 +471,7 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
 
     /* UDP                 */
     case IPPROTO_UDP:
+		print_ipv6_udp_packet(packet_ptr, size);
 
         break;
 
