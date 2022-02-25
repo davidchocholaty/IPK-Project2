@@ -578,6 +578,23 @@ void stop_capture()
     exit(EXIT_SUCCESS);
 }
 
+void print_interfaces ()
+{
+	char err_buf[PCAP_ERRBUF_SIZE];
+	pcap_if_t *interfaces;
+	
+	if (pcap_findalldevs(&interfaces, err_buf) < 0)
+	{
+		printf("Error in pcap_findalldevs(): %s", err_buf);
+        exit(EXIT_FAILURE);
+	}
+	
+	for (pcap_if_t *i = interfaces; i; i = i->next)
+	{
+		printf("%s\n", i->name);
+	}
+}
+
 int main (int argc, char *argv[])
 {
     option_t opt = NULL;
@@ -601,7 +618,7 @@ int main (int argc, char *argv[])
     {
         if (!valid_interface(opt))
         {
-            // TODO vyprintit vsechny rozhrani
+        	print_interfaces();
             // TODO jestli EXIT_SUCCESS nebo EXIT_FAILURE
             return EXIT_SUCCESS;
         }
