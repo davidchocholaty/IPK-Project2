@@ -268,7 +268,7 @@ void print_tcp_ports (const u_char *packet_ptr)
 	struct iphdr *iph = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
 	unsigned short ip_header_len = 4*iph->ihl;
 	
-	struct tcphdr *tcp_header = (struct tcphdr*)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
+	struct tcphdr *tcp_header = (struct tcphdr *)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
 
 	printf("src port: %u\n", ntohs(tcp_header->source));
 	printf("dst port: %u\n", ntohs(tcp_header->dest));
@@ -280,10 +280,14 @@ void print_udp_ports (const u_char *packet_ptr)
 	struct iphdr *iph = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
 	unsigned short ip_header_len = 4*iph->ihl;
 	
-	struct udphdr *udp_header = (struct udphdr*)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
+	struct udphdr *udp_header = (struct udphdr *)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
 	
 	printf("src port: %u\n", ntohs(udp_header->source));
 	printf("dst port: %u\n", ntohs(udp_header->dest));
+}
+
+void print_vertical_indent()
+{
 	printf("\n");
 }
 
@@ -293,6 +297,7 @@ void print_tcp_packet (const u_char *packet_ptr, int size)
 	print_frame_length(size);
 	print_ips(packet_ptr);
 	print_tcp_ports(packet_ptr);
+	print_vertical_indent();
 	print_data(packet_ptr, size);
 }
 
@@ -302,6 +307,16 @@ void print_udp_packet (const u_char *packet_ptr, int size)
 	print_frame_length(size);
 	print_ips(packet_ptr);
 	print_udp_ports(packet_ptr);
+	print_vertical_indent();
+	print_data(packet_ptr, size);
+}
+
+void print_icmp_packet (const u_char *packet_ptr, int size)
+{
+	print_macs(packet_ptr);
+	print_frame_length(size);
+	print_ips(packet_ptr);
+	print_vertical_indent();
 	print_data(packet_ptr, size);
 }
 
@@ -327,8 +342,7 @@ void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
 
     /* ICMPv4 */
     case IPPROTO_ICMP:
-        //icmp_header = (struct icmp*)packet_ptr;
-        //TODO print
+		print_icmp_packet(packet_ptr, size);
 
         break;
 
