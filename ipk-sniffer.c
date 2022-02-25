@@ -198,6 +198,11 @@ void print_data (const u_char *packet_data, int size)
         {
             for (j = 0; j < 15 - i%16; j++)
             {
+            	if ((i + j) % 8 == 0)
+            	{
+            		printf(" ");
+            	}
+            	
 	            /* Extra spaces */
                 printf("   ");
             }
@@ -267,6 +272,7 @@ void print_tcp_ports (const u_char *packet_ptr)
 
 	printf("src port: %u\n", ntohs(tcp_header->source));
 	printf("dst port: %u\n", ntohs(tcp_header->dest));
+	printf("\n");	
 }
 
 void print_tcp_packet (const u_char *packet_ptr, int size)
@@ -280,100 +286,40 @@ void print_tcp_packet (const u_char *packet_ptr, int size)
 
 void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *packet_header)
 {
-    /*
-        TCP
-        ---------
-
-        size_ip = 4 * ip_header->ip_hl
-        size_tcp = 4 * tcp_header->doff
-
-        (link_header_length + size_ip + size_tcp)
-
-        UDP
-        ---------
-
-        size_ip = 4 * ip_header->ip_hl
-        SIZE_UDP = 8
-        (link_header_length + size_ip + SIZE_UDP)
-    */
-    struct ip *ip_header;    
-    struct tcphdr* tcp_header;
-    struct udphdr* udp_header;
-    struct icmp* icmp_header;
-    struct arphdr* arp_header;    
-    
-    //TODO velikost
-    char src_ip[256];
-    char dst_ip[256];
-
-    u_int ip_size;
-    u_int tcp_size;
-
-    /* Skip the datalink layer header and get the IP header fields */
-    //TODO uncomment
-//    packet_ptr += link_header_len;
-    
-    ip_header = (struct ip*)packet_ptr;
-    strcpy(src_ip, inet_ntoa(ip_header->ip_src));
-    strcpy(dst_ip, inet_ntoa(ip_header->ip_dst));
-
-    /* Advance to the transport layer header */
-    ip_size = 4*ip_header->ip_hl;
-        //TODO uncomment
-//    packet_ptr += ip_size;
+    struct ip *ip_header = (struct ip*)(packet_ptr + sizeof(struct ethhdr));
+	int size = packet_header->len;
 
     /* Parse and display the fields based on the type of hearder: tcp, udp, icmp or arp */
-//    switch (ip_header->ip_p)
-	ip_header = (struct ip*)(packet_ptr + sizeof(struct ethhdr));
     switch (ip_header->ip_p)
     {
     /* TCP    */
     case IPPROTO_TCP:
-    //TODO aby fungoval filter tcp
-        // TODO smazat
-        packet_header = packet_header;
-		ip_size = ip_size;
+    	//TODO aby fungoval filter tcp       
 
-		struct iphdr *iph = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
-		int ip_header_len = iph->ihl * 4;
-
-		// ethernet header size + ipv4 header size
-		tcp_header = (struct tcphdr*)(packet_ptr + ip_header_len + sizeof(struct ethhdr));
-		tcp_size = 4 * tcp_header->doff;
-		tcp_size = tcp_size;    
-		//int header_size = sizeof(struct ethhdr) + ip_header_len + tcp_size;
-
-	int size = packet_header->len;
-	//print_data(packet_ptr + header_size, size - header_size);
-	print_tcp_packet(packet_ptr, size);
+		print_tcp_packet(packet_ptr, size);
 
         break;
     
     /* UDP    */
     case IPPROTO_UDP:
-        udp_header = (struct udphdr*)packet_ptr;
-    
-        //(link_header_length + ip_size + UDP_SIZE)
+        //udp_header = (struct udphdr*)packet_ptr;
 
         //TODO print
-        /* TODO smazat */
-        udp_header = udp_header;
+
         break;
 
     /* ICMPv4 */
     case IPPROTO_ICMP:
-        icmp_header = (struct icmp*)packet_ptr;
+        //icmp_header = (struct icmp*)packet_ptr;
         //TODO print
-        /* TODO smazat */
-        icmp_header = icmp_header;
+
         break;
 
     /* ARP    */    
     default:
-        arp_header = (struct arphdr*)packet_ptr;
+        //arp_header = (struct arphdr*)packet_ptr;
         //TODO print
-        /* TODO smazat */
-        arp_header = arp_header;
+
         break;
     }
 }
@@ -472,14 +418,14 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
 }
 
 /* https://gist.github.com/jedisct1/b7812ae9b4850e0053a21c922ed3e9dc */
-void print_timestamp (const struct timeval *timestamp)
+int print_timestamp (const struct timeval *timestamp)
 {
 	struct tm *tm;
    	int off_sign;
 	int off;
 	
 	if ((tm = localtime(&timestamp->tv_sec)) == NULL) {
-		//TODO error
+		return EXIT_FAILURE;
     }
     
 	off_sign = '+';
@@ -494,49 +440,22 @@ void print_timestamp (const struct timeval *timestamp)
        tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
        tm->tm_hour, tm->tm_min, tm->tm_sec, timestamp->tv_usec,
        off_sign, off / 3600, off % 3600);
-    
-	/*
-	time_t now = time(NULL);
-	struct tm *tm;
-	int off_sign;
-	int off;
-	
-	if ((tm = localtime(&now)) == NULL) {
-		//TODO error
-    }
-    
-    off_sign = '+';
-    off = (int) tm->tm_gmtoff;
-    
-	if (tm->tm_gmtoff < 0) {
-        off_sign = '-';
-        off = -off;
-    }
-    
-    // Milliseconds
-    struct timeval millis;
-    gettimeofday(&millis, NULL);
-    
-    
-    printf("timestamp: %d-%d-%dT%02d:%02d:%02d%c%02d:%02d\n",
-           tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
-           tm->tm_hour, tm->tm_min, tm->tm_sec,
-           off_sign, off / 3600, off % 3600);
-    */
-    
 
-    
-    //printf("timestamp: %d-%d-%dT%02d:%02d:%02d.%03ld%c%02d:%02d\n",
-    //   tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
-    //   tm->tm_hour, tm->tm_min, tm->tm_sec, millis.tv_usec,
-    //   off_sign, off / 3600, off % 3600);
+	return EXIT_SUCCESS;
 }
 
 void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const u_char *packet_ptr)
 {    
-	/* Time */
 
-	print_timestamp(&(packet_header->ts));
+	/* For compiler to dont show warning about unused variable */
+	//TODO smazat
+    user = user;
+    
+	/* Timestamp */
+	if (print_timestamp(&(packet_header->ts)) != EXIT_SUCCESS)
+	{
+		exit(EXIT_FAILURE);
+	}
 
     /***************************************************************************/
 
@@ -563,38 +482,21 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const
 
     /***************************************************************************/
 
-    /* Otherwise it packet type IPv4 -> default value of ip_flag */
+	/* IPv6 packet_type */
     if (packet_type == IPv6_PACKET_TYPE)
     {
         handle_ipv6_packet(packet_ptr, packet_header);
     }
     else
     {
+   	    /* IPv4 packet type */
         handle_ipv4_packet(packet_ptr, packet_header);
     }
-
-    // TODO time
-
-
-    /*
-        TODO smazat
-     */
-    user = user;
-    packet_header = packet_header;
 }
 
 void stop_capture()
 {
-    //struct pcap_stat stats;
-
-    //if (pcap_stats(handle, &stats) >= 0)
-    //{
-        //printf("%d packets received\n", stats.ps_recv);
-        //printf("%d packets dropped\n\n", stats.ps_drop);
-    //}
-
     pcap_close(handle);
-
     exit(EXIT_SUCCESS);
 }
 
