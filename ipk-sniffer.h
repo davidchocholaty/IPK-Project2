@@ -13,13 +13,8 @@
 #define IPK_SNIFFER_H
 
 #include <signal.h>
-#include <time.h>
 
 #include <pcap.h>
-#include <netinet/tcp.h>
-#include <netinet/udp.h>
-#include <netinet/ip_icmp.h>
-
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
@@ -31,10 +26,11 @@
 //TODO asi smazat
 #include <net/ethernet.h>
 
-#include <time.h>
-
 #include "error.h"
 #include "option.h"
+
+/* https://stackoverflow.com/questions/3599160/how-can-i-suppress-unused-parameter-warnings-in-c */
+#define UNUSED(x) (void)(x)
 
 #define DLT_NULL_LEN       4
 #define DLT_EN10MB_LEN    14
