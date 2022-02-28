@@ -259,13 +259,13 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
 void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const u_char *packet_ptr)
 {
 	/* For compiler to dont show warning about unused variable */
-	UNUSED(user);
+    UNUSED(user);
     
-	/* Timestamp */
-	if (print_timestamp(&(packet_header->ts)) != EXIT_SUCCESS)
-	{
-		exit(EXIT_FAILURE);
-	}
+    /* Timestamp */
+    if (print_timestamp(&(packet_header->ts)) != EXIT_SUCCESS)
+    {
+        exit(EXIT_FAILURE);
+    }
 
     /***************************************************************************/
 
@@ -292,14 +292,14 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const
 
     /***************************************************************************/
 
-	/* IPv6 packet_type */
+    /* IPv6 packet_type */
     if (packet_type == IPv6_PACKET_TYPE)
     {
         handle_ipv6_packet(packet_ptr, packet_header);
     }
     else
     {
-   	    /* IPv4 packet type */
+        /* IPv4 packet type */
         handle_ipv4_packet(packet_ptr, packet_header);
     }
 }
@@ -325,14 +325,14 @@ int main (int argc, char *argv[])
 
     INIT_OPT(opt);
 
-	/* Parse arguments */
+    /* Parse arguments */
     if (parse_args(argc, argv, opt) != EXIT_SUCCESS)
     {
         print_error(OPT_ERROR);
         return EXIT_FAILURE;
     }
 
-	/* Help printing */
+    /* Help printing */
     if (opt->help_set == SET)
     {
         print_help(argv[0]);    
@@ -353,10 +353,10 @@ int main (int argc, char *argv[])
         device = opt->interface->interface_val;
         packet_cnt = (opt->num->num_set) ? opt->num->num_val : 1;
 
-		/* Create filter string for packet filtering */
+        /* Create filter string for packet filtering */
         create_filter(opt, filter);
 
-		/* Create handle */
+        /* Create handle */
         handle = create_pcap_handle(device, filter);
 
         if (handle == NULL)
