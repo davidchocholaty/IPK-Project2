@@ -9,16 +9,6 @@
 /*                                                        */
 /**********************************************************/
 
-/*
- * TODO
- *
- * prepinac port: 
- *
- * -p 23 (bude filtrování paketů na daném rozhraní podle portu; nebude-li tento parametr
- * uveden, uvažují se všechny porty; pokud je parametr uveden, může se daný port vyskytnout
- * jak v source, tak v destination části)
- */
-
 #include "ipk-sniffer.h"
 #include "packet-print.h"
 
@@ -125,28 +115,28 @@ pcap_t *create_pcap_handle (char *device, const char *filter)
     /* Get network device source IP address and netmask */
     if (pcap_lookupnet(device, &src_ip, &netmask, err_buf) == PCAP_ERROR)
     {
-        fprintf(stderr, "pcap_lookupnet: %s\n", err_buf);
+		print_error(PCAP_LOOKUPNET_ERR);
         return NULL;
     }
 
     /* Open the device for live capture in promiscuous mode */
     if ((handle = pcap_open_live(device, BUFSIZ, 1, 1000, err_buf)) == NULL)
     {
-        fprintf(stderr, "pcap_open_live(): %s\n", err_buf);
+		print_error(PCAP_OPEN_LIVE_ERR);
         return NULL;
     }
 
     /* Convert the packet filter expression into a packet filter binary */
     if (pcap_compile(handle, &bpf, (char *)filter, 0, netmask) == PCAP_ERROR)
     {
-        fprintf(stderr, "pcap_compile(): %s\n", pcap_geterr(handle));
+    	print_error(PCAP_COMPILE_ERR);
         return NULL;
     }
 
     /* Bind the packet filter to the libpcap handle */
     if (pcap_setfilter(handle, &bpf) == PCAP_ERROR)
     {
-        fprintf(stderr, "pcap_setfilter(): %s\n", pcap_geterr(handle));
+    	print_error(PCAP_SETFILTER_ERR);
         return NULL;
     }
 
@@ -277,6 +267,7 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const
     /* Timestamp */
     if (print_timestamp(&(packet_header->ts)) != EXIT_SUCCESS)
     {
+    	print_error(TIME_ERROR);
         exit(EXIT_FAILURE);
     }
 
@@ -380,7 +371,7 @@ int main (int argc, char *argv[])
         /* Start the packet capture */
         if (pcap_loop(handle, packet_cnt, packet_handler, (u_char*)NULL) < 0)
         {
-            fprintf(stderr, "pcap_loop failed: %s\n", pcap_geterr(handle));
+			print_error(PCAP_LOOP_ERR);
             return EXIT_FAILURE;
         }
         

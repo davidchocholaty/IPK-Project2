@@ -2,7 +2,7 @@
 /*                                                        */
 /* File: packet-print.h                                   */
 /* Created: 2022-02-27                                    */
-/* Last change: 2022-02-27                                */
+/* Last change: 2022-02-28                                */
 /* Author: David Chocholaty <xchoch09@stud.fit.vutbr.cz>  */
 /* Project: Project 2 for course IPK                      */
 /* Description: Header file for packet print              */

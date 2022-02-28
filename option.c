@@ -2,7 +2,7 @@
 /*                                                        */
 /* File: option.c                                         */
 /* Created: 2022-02-19                                    */
-/* Last change: 2022-02-19                                */
+/* Last change: 2022-02-28                                */
 /* Author: David Chocholaty <xchoch09@stud.fit.vutbr.cz>  */
 /* Project: Project 2 for course IPK                      */
 /* Description: Options handler for packet sniffer        */
@@ -11,6 +11,11 @@
 
 #include "option.h"
 
+/*
+ * Function for print help
+ *
+ * @param prog_name Name of program
+ */
 void print_help (char *prog_name)
 {
     printf("usage: %s {-h | --help} [-i <interface> | --interface <interface>] {-p <port>} {[-t|--tcp] [-u|--udp] [--arp] [--icmp]} {-n <num>}\n", prog_name);
@@ -26,6 +31,13 @@ void print_help (char *prog_name)
     printf("\n");
 }
 
+/*
+ * Function for covert string to unsigned short
+ *
+ * @param str Input string
+ * @return    If string doesnt contain unsigned short number: 0L,
+ *            number as unsigned short data type otherwise
+ */
 unsigned short strtous (char *str)
 {
     for (char *i = str ; *i ; i++) {
@@ -43,19 +55,25 @@ unsigned short strtous (char *str)
 /*
  * Function to parse long options
  *
- * @param argc      Count of arguments
- * @param argv      Array of arguments
- * @param opt      Struct of options 
+ * @param argc Count of arguments
+ * @param argv Array of arguments
+ * @param opt  Struct of options 
  */
-void parse_long_opt (int argc,
-                     char *argv[],
-                     option_t opt)
+int parse_long_opt (int argc,
+                    char *argv[],
+                    option_t opt)
 {
     for (int i = 1; i < argc; i++)
     {
         /* INTERFACE */
         if (strcmp(argv[i], "--interface") == 0)
         {
+            /* If it is second set of interface option */
+            if (opt->interface->interface_set)
+            {
+            	return EXIT_FAILURE;
+            }
+            
             opt->interface->interface_set = SET;            
             strcpy(argv[i], "");
             
@@ -95,16 +113,18 @@ void parse_long_opt (int argc,
             opt->help_set = SET;
             strcpy(argv[i], "");
         }
-    }    
+    }
+    
+    return EXIT_SUCCESS;
 }
 
 /*
  * Function to parse short options
  *
- * @param argc      Count of arguments
- * @param argv      Array of arguments
- * @param opt       Struct of options
- * @return          Status of function processing
+ * @param argc Count of arguments
+ * @param argv Array of arguments
+ * @param opt  Struct of options
+ * @return     Status of function processing
  */
 int parse_short_opt (int argc,
                       char *argv[],
@@ -118,6 +138,12 @@ int parse_short_opt (int argc,
         switch (input_opt)
         {
         case 'i':
+            /* If it is second set of interface option */        
+            if (opt->interface->interface_set)
+            {
+            	return EXIT_FAILURE;
+            }
+            
             opt->interface->interface_set = SET;
 
             if (optarg[0] != '-')
@@ -128,12 +154,19 @@ int parse_short_opt (int argc,
             break;
 
         case 'p':
+            /* If it is second set of port option */        
+            if (opt->port->port_set)
+            {
+            	return EXIT_FAILURE;
+            }
+        
             opt->port->port_set = SET;            
             
             if (optarg[0] != '-')
             {
                 opt->port->port_val = strtous(optarg);
 
+		/* If it isnt possible to convert to unsigned short */
                 if (opt->port->port_val == 0)
                 {
                     return EXIT_FAILURE;
@@ -155,6 +188,11 @@ int parse_short_opt (int argc,
             break;
 
         case 'n':
+            if (opt->num->num_set)
+            {
+            	return EXIT_FAILURE;
+            }
+        
             opt->num->num_set = SET;
             
             if (optarg[0] != '-')
@@ -180,6 +218,12 @@ int parse_short_opt (int argc,
         case ':':
             if (optopt == 'i')
             {
+                /* If it is second set of interface option */            
+            	if (opt->interface->interface_set)
+            	{
+         	    return EXIT_FAILURE;
+            	}
+            
 		opt->interface->interface_set = SET;
 		break;
             }
@@ -197,12 +241,23 @@ int parse_short_opt (int argc,
     return EXIT_SUCCESS;
 }
 
+/*
+ * Main function for parsing arguments
+ *
+ * @param argc Count of arguments
+ * @param argv Arguments
+ * @param opt  Pointer to options storage
+ * @return     Status of parse_short_opt function processing
+ */
 int parse_args (int argc,
-                 char *argv[],
-                 option_t opt)
+                char *argv[],
+                option_t opt)
 {
-    // TODO pokud bude option zadan vickrat
-    parse_long_opt(argc, argv, opt);
+    if (parse_long_opt(argc, argv, opt) != EXIT_SUCCESS)
+    {
+    	return EXIT_FAILURE;
+    }
 
     return parse_short_opt(argc, argv, opt);
 }
+

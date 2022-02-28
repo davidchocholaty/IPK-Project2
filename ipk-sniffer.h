@@ -2,7 +2,7 @@
 /*                                                        */
 /* File: ipk-sniffer.h                                    */
 /* Created: 2022-02-12                                    */
-/* Last change: 2022-02-19                                */
+/* Last change: 2022-02-18                                */
 /* Author: David Chocholaty <xchoch09@stud.fit.vutbr.cz>  */
 /* Project: Project 2 for course IPK                      */
 /* Description: Header file for packet sniffer            */
@@ -12,9 +12,11 @@
 #ifndef IPK_SNIFFER_H
 #define IPK_SNIFFER_H
 
-#include <signal.h>
+/****** INCLUDES ******/
 
+#include <signal.h>
 #include <pcap.h>
+#include <net/ethernet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
@@ -23,11 +25,11 @@
 #include <netinet/ip_icmp.h>
 #include <netinet/icmp6.h>
 #include <arpa/inet.h>
-//TODO asi smazat
-#include <net/ethernet.h>
 
 #include "error.h"
 #include "option.h"
+
+/***** DEFINITIONS ****/
 
 /* https://stackoverflow.com/questions/3599160/how-can-i-suppress-unused-parameter-warnings-in-c */
 #define UNUSED(x) (void)(x)

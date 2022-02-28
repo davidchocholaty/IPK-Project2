@@ -2,28 +2,40 @@
 /*                                                        */
 /* File: packet-print.c                                   */
 /* Created: 2022-02-27                                    */
-/* Last change: 2022-02-27                                */
+/* Last change: 2022-02-28                                */
 /* Author: David Chocholaty <xchoch09@stud.fit.vutbr.cz>  */
 /* Project: Project 2 for course IPK                      */
-/* Description: Packet sniffer                            */
+/* Description: Packet print for packet sniffer           */
 /*                                                        */
 /**********************************************************/
 
 #include "packet-print.h"
 
-/* https://www.binarytides.com/packet-sniffer-code-c-libpcap-linux-sockets/ */
+/*
+ * Function for print data in hexa and ascii formats
+ *
+ *
+ * This function is inspired of following source:
+ *
+ * https://www.binarytides.com/packet-sniffer-code-c-libpcap-linux-sockets/
+ *
+ * Author of source code: Silver Moon
+ * Date of article upload: 2020-07-31
+ *
+ * @param packet_data Pointer to packet data
+ * @param size        Size of frame
+ */
 void print_data (const u_char *packet_data, int size)
 {
-
     int i, j;
 
     for (i = 0; i < size; i++)
     {
-        //if one line of hex printing is complete...
+        /* If one line of hex printing is complete */
         if ((i != 0) && (i % 16 == 0))
         {
-        	/* Space between hexa and ascii */
-			printf(" ");
+            /* Space between hexa and ascii */
+            printf(" ");
 
             for (j = i - 16; j < i; j++)
             {
@@ -49,12 +61,13 @@ void print_data (const u_char *packet_data, int size)
         /* Print offset */
         if (i % 16 == 0)
         {
-	       	printf("0x%03x0: ", i/16);
+        	printf("0x%03x0: ", i/16);
         }
+	
 		/* Print space in the middle of hexa values */
         else if (i % 8 == 0)
         {
-			printf(" ");
+		printf(" ");
         }                
         
         /* Print hexa value */
@@ -70,7 +83,7 @@ void print_data (const u_char *packet_data, int size)
             		printf(" ");
             	}
             	
-	            /* Extra spaces */
+	        	/* Extra spaces */
                 printf("   ");
             }
             
@@ -96,11 +109,16 @@ void print_data (const u_char *packet_data, int size)
                 }                           
             }
             
+            /* Vertical indent */
             printf("\n\n\n");
         }
     }
 }
-
+/*
+ * Function for print MAC addresses
+ *
+ * @param packet_ptr Pointer to packet
+ */
 void print_macs (const u_char *packet_ptr)
 {
 	struct ethhdr *eth = (struct ethhdr *)packet_ptr;
@@ -113,11 +131,20 @@ void print_macs (const u_char *packet_ptr)
 	       eth->h_dest[3], eth->h_dest[4], eth->h_dest[5]);
 }
 
+/*
+ * Function for print length of frame in bytes
+ *
+ * @param size Frame size
+ */
 void print_frame_length (int size)
 {
 	printf("frame length: %d bytes\n", size);
 }
-
+/*
+ * Function for print IPv4 addresses
+ *
+ * @param packet_ptr Pointer to packet
+ */
 void print_ips (const u_char *packet_ptr)
 {
 	struct iphdr *ip_header = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
@@ -130,9 +157,13 @@ void print_ips (const u_char *packet_ptr)
 	printf("dst IP: %s\n" , inet_ntoa(dest.sin_addr));
 }
 
+/*
+ * Function for print IPv6 addresses
+ *
+ * @param packet_ptr Pointer to packet
+ */
 void print_ipv6_ips (const u_char *packet_ptr)
 {
-	//TODO
 	struct ip6_hdr *ipv6_header = (struct ip6_hdr *)(packet_ptr + sizeof(struct ethhdr));
 
 	char ipv6_src_ip[INET6_ADDRSTRLEN];
@@ -145,6 +176,11 @@ void print_ipv6_ips (const u_char *packet_ptr)
 	printf("dst IP: %s\n", ipv6_dst_ip);
 }
 
+/*
+ * Function for print IPv4 tcp ports
+ *
+ * @param packet_ptr Pointer to packet
+ */
 void print_tcp_ports (const u_char *packet_ptr)
 {
 	struct iphdr *ip_header = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
@@ -156,6 +192,11 @@ void print_tcp_ports (const u_char *packet_ptr)
 	printf("dst port: %u\n", ntohs(tcp_header->dest));
 }
 
+/*
+ * Function for print IPv4 udp ports
+ *
+ * @param packet_ptr Pointer to packet
+ */
 void print_udp_ports (const u_char *packet_ptr)
 {
 	struct iphdr *ip_header = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
@@ -167,6 +208,11 @@ void print_udp_ports (const u_char *packet_ptr)
 	printf("dst port: %u\n", ntohs(udp_header->dest));
 }
 
+/*
+ * Function for print IPv6 tcp ports
+ *
+ * @param packet_ptr Pointer to packet
+ */
 void print_ipv6_tcp_ports (const u_char *packet_ptr)
 {
 	struct iphdr *ip_header = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
@@ -178,6 +224,11 @@ void print_ipv6_tcp_ports (const u_char *packet_ptr)
 	printf("dst port: %u\n", ntohs(tcp_header->dest));
 }
 
+/*
+ * Function for print IPv6 udp ports
+ *
+ * @param packet_ptr Pointer to packet
+ */
 void print_ipv6_udp_ports (const u_char *packet_ptr)
 {
 	struct iphdr *ip_header = (struct iphdr *)(packet_ptr + sizeof(struct ethhdr));
@@ -189,11 +240,20 @@ void print_ipv6_udp_ports (const u_char *packet_ptr)
 	printf("dst port: %u\n", ntohs(udp_header->dest));	
 }
 
+/*
+ * Function for print vertical indent
+ */
 void print_vertical_indent()
 {
 	printf("\n");
 }
 
+/*
+ * Function for print IPv4 tcp packet
+ *
+ * @param packet_ptr Pointer to packet
+ * @param size       Size of frame
+ */
 void print_tcp_packet (const u_char *packet_ptr, int size)
 {
 	print_macs(packet_ptr);
@@ -204,6 +264,12 @@ void print_tcp_packet (const u_char *packet_ptr, int size)
 	print_data(packet_ptr, size);
 }
 
+/*
+ * Function for print IPv4 udp packet
+ *
+ * @param packet_ptr Pointer to packet
+ * @param size       Size of frame
+ */
 void print_udp_packet (const u_char *packet_ptr, int size)
 {
 	print_macs(packet_ptr);
@@ -214,6 +280,12 @@ void print_udp_packet (const u_char *packet_ptr, int size)
 	print_data(packet_ptr, size);
 }
 
+/*
+ * Function for print IPv4 icmp packet
+ *
+ * @param packet_ptr Pointer icmp packet
+ * @param size       Size of frame
+ */
 void print_icmp_packet (const u_char *packet_ptr, int size)
 {
 	print_macs(packet_ptr);
@@ -223,6 +295,12 @@ void print_icmp_packet (const u_char *packet_ptr, int size)
 	print_data(packet_ptr, size);
 }
 
+/*
+ * Function for print arp frame
+ *
+ * @param packet_ptr Pointer to packet
+ * @param size       Size of frame
+ */
 void print_arp_frame (const u_char *packet_ptr, int size)
 {
 	print_macs(packet_ptr);
@@ -231,6 +309,12 @@ void print_arp_frame (const u_char *packet_ptr, int size)
 	print_data(packet_ptr, size);		
 }
 
+/*
+ * Function for print IPv6 tcp packet
+ *
+ * @param packet_ptr Pointer to packet
+ * @param size       Size of frame
+ */
 void print_ipv6_tcp_packet (const u_char *packet_ptr, int size)
 {
 	print_macs(packet_ptr);
@@ -241,6 +325,12 @@ void print_ipv6_tcp_packet (const u_char *packet_ptr, int size)
 	print_data(packet_ptr, size);
 }
 
+/*
+ * Function for print IPv6 udp packet
+ *
+ * @param packet_ptr Pointer to packet
+ * @param size       Size of frame
+ */
 void print_ipv6_udp_packet (const u_char *packet_ptr, int size)
 {
 	print_macs(packet_ptr);
@@ -251,6 +341,12 @@ void print_ipv6_udp_packet (const u_char *packet_ptr, int size)
 	print_data(packet_ptr, size);
 }
 
+/*
+ * Function for print IPv6 icmp packet
+ *
+ * @param packet_ptr Pointer to packet
+ * @param size       Size of frame
+ */
 void print_ipv6_icmp_packet (const u_char *packet_ptr, int size)
 {
 	print_macs(packet_ptr);
@@ -260,7 +356,17 @@ void print_ipv6_icmp_packet (const u_char *packet_ptr, int size)
 	print_data(packet_ptr, size);
 }
 
-/* https://gist.github.com/jedisct1/b7812ae9b4850e0053a21c922ed3e9dc */
+/*
+ * Function for print timestamp
+ *
+ *
+ * This function is inspired from following code:
+ *
+ * https://gist.github.com/jedisct1/b7812ae9b4850e0053a21c922ed3e9dc
+ *
+ * @param timestamp Timestamp value
+ * @return          Status of function processing
+ */
 int print_timestamp (const struct timeval *timestamp)
 {
 	struct tm *tm;
@@ -270,16 +376,16 @@ int print_timestamp (const struct timeval *timestamp)
 	if ((tm = localtime(&timestamp->tv_sec)) == NULL)
 	{
 		return EXIT_FAILURE;
-    	}
+    }
     
 	off_sign = '+';
-    	off = (int) tm->tm_gmtoff;
+    off = (int) tm->tm_gmtoff;
     
 	if (tm->tm_gmtoff < 0)
 	{
 	        off_sign = '-';
         	off = -off;
-    	}
+    }
 	
 	printf("timestamp: %d-%02d-%02dT%02d:%02d:%02d.%ld%c%02d:%02d\n",
 	        tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
@@ -289,6 +395,9 @@ int print_timestamp (const struct timeval *timestamp)
 	return EXIT_SUCCESS;
 }
 
+/*
+ * Function for print list of active interfaces
+ */
 void print_interfaces ()
 {
 	char err_buf[PCAP_ERRBUF_SIZE];

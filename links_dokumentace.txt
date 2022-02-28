@@ -3,3 +3,5 @@ https://github.com/yuan901202/vuw_nwen302_ethernet_packet_sniffer/blob/master/ep
 https://www.binarytides.com/packet-sniffer-code-c-libpcap-linux-sockets/
 https://stackoverflow.com/questions/21222369/getting-ip-address-of-a-packet-in-pcap-file
 https://stackoverflow.com/questions/3599160/how-can-i-suppress-unused-parameter-warnings-in-c
+https://gist.github.com/jedisct1/b7812ae9b4850e0053a21c922ed3e9dc
+https://www.binarytides.com/packet-sniffer-code-c-libpcap-linux-sockets/
