@@ -149,7 +149,7 @@ pcap_t *create_pcap_handle (char *device, const char *filter)
 void handle_ipv4_packet (const u_char *packet_ptr, const struct pcap_pkthdr *packet_header)
 {
     struct ip *ip_header = (struct ip *)(packet_ptr + sizeof(struct ethhdr));
-	int size = packet_header->len;
+    int size = packet_header->len;
 
     /* Parse and display the fields based on the type of hearder: tcp, udp, icmp or arp */
     switch (ip_header->ip_p)
@@ -257,7 +257,7 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
  * @param packet_ptr    Pointer to packet
  */
 void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const u_char *packet_ptr)
-{    
+{
 	/* For compiler to dont show warning about unused variable */
 	UNUSED(user);
     
@@ -353,10 +353,10 @@ int main (int argc, char *argv[])
         device = opt->interface->interface_val;
         packet_cnt = (opt->num->num_set) ? opt->num->num_val : 1;
 
-	/* Create filter string for packet filtering */
+		/* Create filter string for packet filtering */
         create_filter(opt, filter);
 
-	/* Create handle */
+		/* Create handle */
         handle = create_pcap_handle(device, filter);
 
         if (handle == NULL)
@@ -377,5 +377,4 @@ int main (int argc, char *argv[])
 
     return EXIT_SUCCESS;
 }
-
 
