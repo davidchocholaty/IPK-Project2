@@ -91,7 +91,20 @@ void create_filter (option_t opt, char *filter)
     if (opt->arp_set)
     {
         ADD_ARP_FILTER(opt, filter, port_filter, port_is_set);
-    }    
+    }
+    
+    /*
+     * If no option tcp, udp, icmp, arp was not set
+     *
+     * -> sniff every packet
+     */
+    if (strcmp(filter, "") == 0)
+    {
+        ADD_TCP_FILTER(opt, filter, port_filter, port_is_set);
+        ADD_UDP_FILTER(opt, filter, port_filter, port_is_set);
+        ADD_ICMP_FILTER(opt, filter, port_filter, port_is_set);
+        ADD_ARP_FILTER(opt, filter, port_filter, port_is_set);
+    }
 }
 
 /*
@@ -258,7 +271,7 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
  */
 void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const u_char *packet_ptr)
 {
-	/* For compiler to dont show warning about unused variable */
+    /* For compiler to dont show warning about unused variable */
     UNUSED(user);
     
     /* Timestamp */

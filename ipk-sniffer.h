@@ -78,19 +78,7 @@
                                                                    \
         strcat(filter, "icmp");                                    \
                                                                    \
-        if (port_is_set)                                           \
-        {                                                          \
-            sprintf(port_filter, " port %d", opt->port->port_val); \
-            strcat(filter, port_filter);                           \
-        }                                                          \
-                                                                   \
-        strcat(filter, " or icmp6");                               \
-                                                                   \
-        if (port_is_set)                                           \
-        {                                                          \
-            sprintf(port_filter, " port %d", opt->port->port_val); \
-            strcat(filter, port_filter);                           \
-        }
+        strcat(filter, " or icmp6");
 
 #define ADD_ARP_FILTER(opt, filter, port_filter, port_is_set)      \
         if(strcmp(filter, "") != 0)                                \
@@ -98,12 +86,6 @@
             strcat(filter, " or ");                                \
         }                                                          \
                                                                    \
-        strcat(filter, "arp");                                     \
-                                                                   \
-        if (port_is_set)                                           \
-        {                                                          \
-            sprintf(port_filter, " port %d", opt->port->port_val); \
-            strcat(filter, port_filter);                           \
-        }
+        strcat(filter, "arp");
 
 #endif // IPK_SNIFFER_H
