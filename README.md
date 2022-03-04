@@ -38,13 +38,14 @@ Sniffer lze spustit s následujícími argumenty:
 
 | Argument    | Popis                                           | Dlouhá varianta  |
 | :---        | :---                                            |      :----:      |
+| -h          | výpis nápovědy                                  | --help           |
 | -i rozhraní | rozhraní, na kterém se bude poslouchat          | --interface      |
 | -p port     | filtrování paketů na daném rozhraní podle portu | -----            |
 | -t          | zobrazení pouze TCP paketů                      | --tcp            |
 | -u          | zobrazení pouze UDP paketů                      | --udp            |
 | --icmp      | zobrazení pouze ICMPv4 a ICMPv6 paketů          | pouze            |
 | --arp       | zobrazení pouze ARP rámců                       | pouze            |
-| -n num      | počet paketů pro zobrazení                      | -----            |
+| -n num      | počet paketů pro zobrazení, výchozí hodnota 1   | -----            |
 
 #### Příklad spuštění 
 
