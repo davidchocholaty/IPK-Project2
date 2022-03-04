@@ -35,13 +35,13 @@ make
 
 Sniffer lze spustit s následujícími argumenty:
 
--i rozhraní -> rozhraní, na kterém se bude poslouchat
--p port     -> filtrování paketů na daném rozhraní podle portu
--t/--tcp    -> zobrazení pouze TCP paketů
--u/--udp    -> zobrazení pouze UDP paketů
---icmp      -> zobrazení pouze ICMPv4 a ICMPv6 paketů
---arp       -> zobrazení pouze ARP rámců
--n num      -> počet paketů pro zobrazení
+- -i rozhraní    rozhraní, na kterém se bude poslouchat
+- -p port        filtrování paketů na daném rozhraní podle portu
+- -t/--tcp       zobrazení pouze TCP paketů
+- -u/--udp       zobrazení pouze UDP paketů
+- --icmp         zobrazení pouze ICMPv4 a ICMPv6 paketů
+- --arp          zobrazení pouze ARP rámců
+- -n num         počet paketů pro zobrazení
 
 #### Příklad spuštění 
 
