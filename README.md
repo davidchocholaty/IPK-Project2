@@ -21,10 +21,11 @@ David Chocholatý
 
 ### Předpoklady
 - gcc
+- GNU Make
 - tar (Nutné pouze při vytváření archivu)
 
 ### Vytvoření projektu
-Projekt lze vytrořit pomocí Makefile následujícím příkazem
+Projekt lze vytvořit pomocí Makefile následujícím příkazem
 ```console
 make
 ```
