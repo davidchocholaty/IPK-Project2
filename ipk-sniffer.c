@@ -2,7 +2,7 @@
 /*                                                        */
 /* File: ipk-sniffer.c                                    */
 /* Created: 2022-02-12                                    */
-/* Last change: 2022-02-28                                */
+/* Last change: 2022-03-05                                */
 /* Author: David Chocholaty <xchoch09@stud.fit.vutbr.cz>  */
 /* Project: Project 2 for course IPK                      */
 /* Description: Packet sniffer                            */
@@ -115,14 +115,14 @@ pcap_t *create_pcap_handle (char *device, const char *filter)
     /* Get network device source IP address and netmask */
     if (pcap_lookupnet(device, &src_ip, &netmask, err_buf) == PCAP_ERROR)
     {
-		print_error(PCAP_LOOKUPNET_ERR);
+        print_error(PCAP_LOOKUPNET_ERR);
         return NULL;
     }
 
     /* Open the device for live capture in promiscuous mode */
     if ((handle = pcap_open_live(device, BUFSIZ, 1, 1000, err_buf)) == NULL)
     {
-		print_error(PCAP_OPEN_LIVE_ERR);
+        print_error(PCAP_OPEN_LIVE_ERR);
         return NULL;
     }
 
@@ -191,7 +191,7 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
     int size = packet_header->len;
     int next_header = ipv6_header->ip6_nxt;
 
-	/***************************************************************************/
+    /***************************************************************************/
 
     /*
      * Next part of code is taken over from following source:
@@ -383,7 +383,7 @@ int main (int argc, char *argv[])
         /* Start the packet capture */
         if (pcap_loop(handle, packet_cnt, packet_handler, (u_char*)NULL) < 0)
         {
-			print_error(PCAP_LOOP_ERR);
+            print_error(PCAP_LOOP_ERR);
             return EXIT_FAILURE;
         }
         
