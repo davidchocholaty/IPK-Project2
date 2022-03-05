@@ -67,7 +67,7 @@ void print_data (const u_char *packet_data, int size)
         /* Print space in the middle of hexa values */
         else if (i % 8 == 0)
         {
-		printf(" ");
+			printf(" ");
         }                
         
         /* Print hexa value */
@@ -78,17 +78,19 @@ void print_data (const u_char *packet_data, int size)
         {
             for (j = 0; j < 15 - i%16; j++)
             {
-            	if ((i + j) % 8 == 0)
+            	if ((i + j) % 8 == 0 && j != 0)
             	{
             		printf(" ");
             	}
             	
 	        /* Extra spaces */
                 printf("   ");
+
             }
             
             /* Space between hexa and ascii values at last row */
 			printf(" ");
+
 
             for (j = i - i%16; j <= i; j++)
             {	            
