@@ -83,6 +83,8 @@ make
 
 ###### Spuštění snifferu bez určení rozhraní - výpis aktivních rozhraní
 ```console
+./ipk-sniffer
+```
 
 #### Ukončení snifferu
 Sniffer lze ukončit pomocí kombinace kláves Ctrl + C.
