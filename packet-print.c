@@ -64,7 +64,7 @@ void print_data (const u_char *packet_data, int size)
         	printf("0x%03x0: ", i/16);
         }
 	
-	/* Print space in the middle of hexa values */
+        /* Print space in the middle of hexa values */
         else if (i % 8 == 0)
         {
 		printf(" ");
@@ -92,7 +92,7 @@ void print_data (const u_char *packet_data, int size)
 
             for (j = i - i%16; j <= i; j++)
             {	            
-		/* Space at start and in the middle of ascii values at last row */
+                /* Space at start and in the middle of ascii values at last row */
             	if (j % 8 == 0)
             	{
             		printf(" ");
