@@ -19,7 +19,7 @@ PACKET_PRINT = packet-print
 OBJS = $(EXECUTABLE).o $(ERR).o $(OPT).o $(PACKET_PRINT).o
 LOGIN = xchoch09
 TAR_FILE = $(LOGIN).tar
-TAR_OPTIONS = -cvf
+TAR_OPTIONS =  --exclude-vcs -cvf
 
 .PHONY: all pack run clean
 
