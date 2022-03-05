@@ -67,7 +67,7 @@ void print_data (const u_char *packet_data, int size)
         /* Print space in the middle of hexa values */
         else if (i % 8 == 0)
         {
-			printf(" ");
+            printf(" ");
         }                
         
         /* Print hexa value */
@@ -83,7 +83,7 @@ void print_data (const u_char *packet_data, int size)
             		printf(" ");
             	}
             	
-	        /* Extra spaces */
+	            /* Extra spaces */
                 printf("   ");
 
             }
