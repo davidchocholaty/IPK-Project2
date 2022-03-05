@@ -191,6 +191,16 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
     int size = packet_header->len;
     int next_header = ipv6_header->ip6_nxt;
 
+	/***************************************************************************/
+
+    /*
+     * Next part of code is taken over from following source:
+     *
+     * https://github.com/yuan901202/vuw_nwen302_ethernet_packet_sniffer/blob/master/eps.c
+     * 
+     * Author of source code: yuan901202 (https://github.com/yuan901202)
+     */ 
+
     /* Determining if the packet has an extended header  */
     switch (next_header)
     {
@@ -225,6 +235,8 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
     default:
         break;
     }
+    
+    /***************************************************************************/
 
     /* Parse and display the fields based on the type of hearder: tcp, udp, icmpv6 */
     switch (next_header)
