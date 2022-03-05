@@ -18,6 +18,7 @@
 #include <ctype.h>
 
 #include <pcap.h>
+#include <linux/if_ether.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
@@ -26,7 +27,6 @@
 #include <netinet/ip_icmp.h>
 #include <netinet/icmp6.h>
 #include <arpa/inet.h>
-#include <net/ethernet.h>
 
 void print_tcp_packet (const u_char *packet_ptr, int size);
 void print_udp_packet (const u_char *packet_ptr, int size);

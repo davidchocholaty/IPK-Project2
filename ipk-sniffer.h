@@ -16,7 +16,7 @@
 
 #include <signal.h>
 #include <pcap.h>
-#include <net/ethernet.h>
+#include <linux/if_ether.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
