@@ -55,6 +55,8 @@ Sniffer lze spustit s následujícími argumenty:
 ./ipk-sniffer [-i rozhraní | --interface rozhraní] {-p ­­port} {[--tcp|-t] [--udp|-u] [--arp] [--icmp] } {-n num}
 ```
 
+Při výskytu chyby je nutné spouštět projekt s rootovskými privilegii.
+
 ##### Ukázkové příklady
 ###### Vytvoření projektu
 ```console
@@ -63,12 +65,12 @@ make
 
 ###### Filtrování tcp a udp paketů na rozhraní eth0 a zobrazení 5 paketů
 ```console
-./ipk-sniffer -i eth0 --tcp -u -n 5
+sudo ./ipk-sniffer -i eth0 --tcp -u -n 5
 ```
 
 ###### Filtrování icmp paketů na rozhraní lo a zobrazení 1 paketu
 ```console
-./ipk-sniffer --interface lo --icmp
+sudo ./ipk-sniffer --interface lo --icmp
 ```
 
 ###### Filtrování paketů na rozhraní eth0 dle portu 443 a zobrazení 1 paketu
@@ -78,12 +80,12 @@ make
 
 ###### Filtrování arp rámců na rozhraní eth0 a zobrazení 1 paketu
 ```console
-./ipk-sniffer --arp -i eth0
+sudo ./ipk-sniffer --arp -i eth0
 ```
 
 ###### Spuštění snifferu bez určení rozhraní - výpis aktivních rozhraní
 ```console
-./ipk-sniffer
+sudo ./ipk-sniffer
 ```
 
 #### Ukončení snifferu
