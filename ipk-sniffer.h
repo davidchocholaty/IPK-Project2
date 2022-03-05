@@ -40,11 +40,6 @@
  */
 #define UNUSED(x) (void)(x)
 
-#define DLT_NULL_LEN       4
-#define DLT_EN10MB_LEN    14
-#define DLT_LINUX_SLL_LEN 16
-#define DLT_SLIP_PPP_LEN  24
-
 #define IPv4 false
 #define IPv6 true
 
