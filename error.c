@@ -2,7 +2,7 @@
 /*                                                        */
 /* File: error.c                                          */
 /* Created: 2022-02-19                                    */
-/* Last change: 2022-02-28                                */
+/* Last change: 2022-03-22                                */
 /* Author: David Chocholaty <xchoch09@stud.fit.vutbr.cz>  */
 /* Project: Project 2 for course IPK                      */
 /* Description: Errors for packet sniffer                 */
@@ -11,6 +11,11 @@
 
 #include "error.h"
 
+/*
+ * Function for printing error message
+ *
+ * @param error Error code
+ */
 void print_error(uint8_t error)
 {
     const char *error_msg[] =

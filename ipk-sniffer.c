@@ -2,7 +2,7 @@
 /*                                                        */
 /* File: ipk-sniffer.c                                    */
 /* Created: 2022-02-12                                    */
-/* Last change: 2022-03-05                                */
+/* Last change: 2022-03-22                                */
 /* Author: David Chocholaty <xchoch09@stud.fit.vutbr.cz>  */
 /* Project: Project 2 for course IPK                      */
 /* Description: Packet sniffer                            */
@@ -100,6 +100,12 @@ void create_filter (option_t opt, char *filter)
 /*
  * Function for creating pcap handle for packet sniffing
  *
+ * This function is inspired of following source:
+ *
+ * Source: https://vichargrave.github.io/programming/develop-a-packet-sniffer-with-libpcap/
+ * Author: Vic Hargrave
+ * Date of article update: 2012-12-09
+ *
  * @param device Network device
  * @param filter Filter string
  * @return       Pcap handler
@@ -196,9 +202,8 @@ void handle_ipv6_packet (const u_char *packet_ptr, const struct pcap_pkthdr *pac
     /*
      * Next part of code is taken over from following source:
      *
-     * https://github.com/yuan901202/vuw_nwen302_ethernet_packet_sniffer/blob/master/eps.c
-     * 
-     * Author of source code: yuan901202 (https://github.com/yuan901202)
+     * Source: https://github.com/yuan901202/vuw_nwen302_ethernet_packet_sniffer/blob/master/eps.c
+     * Author: yuan901202 (https://github.com/yuan901202)
      */ 
 
     /* Determining if the packet has an extended header  */
@@ -288,9 +293,8 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packet_header, const
     /*
      * Next part of code is taken over from following source:
      *
-     * https://stackoverflow.com/questions/21222369/getting-ip-address-of-a-packet-in-pcap-file
-     * 
-     * Author of the answer: user15829861 (https://stackoverflow.com/users/15829861/user15829861)
+     * Source: https://stackoverflow.com/questions/21222369/getting-ip-address-of-a-packet-in-pcap-file
+     * Author: user15829861 (https://stackoverflow.com/users/15829861/user15829861)
      */    
 
     /*
@@ -381,6 +385,11 @@ int main (int argc, char *argv[])
         }
 
         /* Start the packet capture */
+        
+        /*
+         * Source: https://www.tcpdump.org/manpages/pcap_loop.3pcap.html
+         * Author: libpcap manual pages
+         */
         if (pcap_loop(handle, packet_cnt, packet_handler, (u_char*)NULL) < 0)
         {
             print_error(PCAP_LOOP_ERR);

@@ -2,7 +2,7 @@
 /*                                                        */
 /* File: packet-print.c                                   */
 /* Created: 2022-02-27                                    */
-/* Last change: 2022-03-05                                */
+/* Last change: 2022-03-22                                */
 /* Author: David Chocholaty <xchoch09@stud.fit.vutbr.cz>  */
 /* Project: Project 2 for course IPK                      */
 /* Description: Packet print for packet sniffer           */
@@ -17,8 +17,7 @@
  *
  * This function is inspired of following source:
  *
- * https://www.binarytides.com/packet-sniffer-code-c-libpcap-linux-sockets/
- *
+ * Source: https://www.binarytides.com/packet-sniffer-code-c-libpcap-linux-sockets/
  * Author of source code: Silver Moon
  * Date of article upload: 2020-07-31
  *
@@ -116,6 +115,7 @@ void print_data (const u_char *packet_data, int size)
         }
     }
 }
+
 /*
  * Function for print MAC addresses
  *
@@ -171,6 +171,10 @@ void print_ipv6_ips (const u_char *packet_ptr)
     char ipv6_src_ip[INET6_ADDRSTRLEN];
     char ipv6_dst_ip[INET6_ADDRSTRLEN];
 
+	/*
+	 * Source: https://man7.org/linux/man-pages/man3/inet_ntop.3.html
+	 * Author: Linux manual pages
+	 */
     inet_ntop(AF_INET6, &(ipv6_header->ip6_src), ipv6_src_ip, INET6_ADDRSTRLEN);
     inet_ntop(AF_INET6, &(ipv6_header->ip6_dst), ipv6_dst_ip, INET6_ADDRSTRLEN);
 	
@@ -364,7 +368,8 @@ void print_ipv6_icmp_packet (const u_char *packet_ptr, int size)
  *
  * This function is inspired from following code:
  *
- * https://gist.github.com/jedisct1/b7812ae9b4850e0053a21c922ed3e9dc
+ * Source: https://gist.github.com/jedisct1/b7812ae9b4850e0053a21c922ed3e9dc
+ * Author: Frank Denis (jedisct1)
  *
  * @param timestamp Timestamp value
  * @return          Status of function processing
@@ -405,6 +410,10 @@ void print_interfaces ()
     char err_buf[PCAP_ERRBUF_SIZE];
     pcap_if_t *interfaces;
 	
+	/*
+	 * Source: https://man7.org/linux/man-pages/man3/pcap_findalldevs.3pcap.html
+	 * Author: Linux manual pages
+	 */
     if (pcap_findalldevs(&interfaces, err_buf) < 0)
     {
         printf("Error in pcap_findalldevs(): %s", err_buf);
